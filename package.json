@@ -1,0 +1,9 @@
+{
+  "name": "alphabet-english-lab",
+  "version": "1.0.0",
+  "description": "Ung dung hoc bang chu cai tieng Anh bang Node.js",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  }
+}
