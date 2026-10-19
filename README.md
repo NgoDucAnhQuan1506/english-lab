@@ -10,6 +10,9 @@ English Lab là ứng dụng web hỗ trợ người mới bắt đầu học ti
 - Học từ vựng minh họa kèm nghĩa tiếng Việt.
 - Theo dõi tiến độ học theo từng chữ cái.
 - Đánh dấu nội dung yêu thích.
+- Đăng ký, đăng nhập và đăng xuất tài khoản bằng email, mật khẩu.
+- Trang cá nhân hiển thị tiến độ, độ chính xác, lượt trả lời, ngày học và chữ yêu thích.
+- Tự động khôi phục bài học gần nhất khi đăng nhập lại; dữ liệu riêng theo tài khoản.
 - Làm bài luyện tập chọn chữ cái đúng.
 - Giao diện responsive, hoạt động trên máy tính và thiết bị di động.
 - Kiến trúc sẵn sàng mở rộng cho các bài học tiếp theo như âm cơ bản, số đếm, màu sắc và hội thoại.
@@ -37,7 +40,7 @@ english-lab/
 
 ## Yêu cầu hệ thống
 
-- Node.js phiên bản 18 trở lên.
+- Node.js phiên bản 22.13 trở lên (khuyến nghị Node.js 24), sử dụng SQLite tích hợp.
 - Trình duyệt hiện đại như Chrome, Edge, Firefox hoặc Safari.
 - Kết nối Internet nếu muốn tải font chữ từ Google Fonts.
 
@@ -68,6 +71,16 @@ english-lab/
    http://localhost:3000
    ```
 
+## Tài khoản và dữ liệu
+
+Chọn **Đăng nhập / Đăng ký** để tạo tài khoản. Sau khi đăng nhập, **Trang cá nhân** hiển thị tiến độ; chọn **Tiếp tục học** để trở lại chữ đang học. Chọn **Tiếp theo** để ghi nhận một chữ đã học. Trả lời đúng bài luyện tập cũng đánh dấu chữ tương ứng đã học. Bấm trái tim để lưu chữ yêu thích.
+
+Chế độ học thử không lưu tiến độ vào tài khoản. Khi đăng nhập, ứng dụng tải dữ liệu của tài khoản đó. Ngày học và chuỗi ngày học tính theo múi giờ Asia/Bangkok.
+
+Máy chủ lưu dữ liệu tại `data/english-lab.sqlite`, ngoài thư mục public và được bỏ qua trong Git. Có thể đặt biến `DATA_DIR` để đổi thư mục dữ liệu. Mật khẩu được băm bằng scrypt với salt riêng; phiên đăng nhập dùng cookie HttpOnly, SameSite=Lax, hết hạn sau 7 ngày. Đặt `NODE_ENV=production` khi chạy qua HTTPS để bật cookie Secure.
+
+Chạy kiểm tra API bằng `npm test`. Chưa có xác minh email hoặc đặt lại mật khẩu.
+
 ## Triển khai lên Render
 
 English Lab sử dụng Node.js server nên có thể triển khai nhanh trên Render:
@@ -84,13 +97,14 @@ English Lab sử dụng Node.js server nên có thể triển khai nhanh trên R
 
 5. Nhấn **Deploy** để tạo đường dẫn truy cập trực tuyến.
 
+Ứng dụng cần ổ đĩa lưu trữ bền vững cho SQLite: đặt `DATA_DIR` tới thư mục được gắn ổ đĩa và sao lưu dữ liệu định kỳ. Thư mục tạm của dịch vụ không bảo đảm giữ tài khoản khi triển khai lại. Chạy một phiên bản máy chủ dùng tệp SQLite này.
+
 ## Định hướng phát triển
 
 - Bổ sung bài học luyện âm và khẩu hình.
 - Mở rộng bộ từ vựng theo chủ đề.
 - Thêm bài học số đếm, màu sắc và con vật.
-- Lưu tiến độ học của từng người dùng.
-- Bổ sung tài khoản, điểm số và huy hiệu.
+- Bổ sung điểm số và huy hiệu.
 - Xây dựng bài luyện nghe và hội thoại cơ bản.
 
 ## Giấy phép
