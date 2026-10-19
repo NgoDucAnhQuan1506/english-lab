@@ -3,7 +3,15 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
+const { execFileSync } = require('node:child_process');
 process.env.DATA_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'english-lab-test-'));
+// Simulate an installation created before roles were introduced.
+const { DatabaseSync: LegacyDatabase } = require('node:sqlite');
+const legacy = new LegacyDatabase(path.join(process.env.DATA_DIR, 'english-lab.sqlite'));
+legacy.exec('CREATE TABLE users (id TEXT PRIMARY KEY, name TEXT NOT NULL, email TEXT UNIQUE NOT NULL, password TEXT NOT NULL, salt TEXT NOT NULL, progress TEXT NOT NULL)');
+const legacyProgress = { currentIndex: 4, learned: [1, 2], favorites: [2], attempts: 1, correct: 1, days: ['2026-01-01'] };
+legacy.prepare('INSERT INTO users VALUES (?, ?, ?, ?, ?, ?)').run('legacy', 'Legacy', 'legacy@example.com', '00'.repeat(64), 'salt', JSON.stringify(legacyProgress));
+legacy.close();
 const { server, db } = require('./server');
 
 test('account sessions, isolated persistent progress and validation', async t => {
@@ -14,6 +22,10 @@ test('account sessions, isolated persistent progress and validation', async t =>
     fs.rmSync(process.env.DATA_DIR, { recursive: true, force: true });
   });
   const base = `http://127.0.0.1:${server.address().port}`;
+  const migrated = db.prepare("SELECT * FROM users WHERE id = 'legacy'").get();
+  assert.equal(migrated.role, 'student');
+  assert.equal(migrated.disabled, 0);
+  assert.deepEqual(JSON.parse(migrated.progress), legacyProgress);
   async function call(route, data, cookie, extra = {}) {
     const response = await fetch(base + '/api/' + route, { method: data === undefined ? 'GET' : 'POST', headers: { ...(data === undefined ? {} : { 'Content-Type': 'application/json' }), ...(cookie ? { Cookie: cookie } : {}), ...extra }, body: data === undefined ? undefined : JSON.stringify(data) });
     return { status: response.status, cookie: response.headers.get('set-cookie')?.split(';')[0], headers: response.headers, body: await response.json() };
@@ -27,7 +39,7 @@ test('account sessions, isolated persistent progress and validation', async t =>
   assert.match(registration.headers.get('set-cookie'), /HttpOnly; SameSite=Lax/);
   assert.equal(registration.body.user.email, 'an@example.com');
   assert.equal(registration.body.user.password, undefined);
-  const stored = db.prepare('SELECT * FROM users').get();
+  const stored = db.prepare('SELECT * FROM users WHERE email = ?').get('an@example.com');
   assert.notEqual(stored.password, credentials.password);
   assert.equal(stored.password.length, 128);
   assert.equal((await call('register', credentials)).status, 409);
@@ -64,6 +76,49 @@ test('account sessions, isolated persistent progress and validation', async t =>
   const disk = new DatabaseSync(path.join(process.env.DATA_DIR, 'english-lab.sqlite'));
   assert.deepEqual(JSON.parse(disk.prepare('SELECT progress FROM users WHERE id = ?').get(stored.id).progress), updated);
   disk.close();
+  // Admin APIs reject guests and ordinary learners, including crafted role fields.
+  assert.equal((await call('admin/users')).status, 401);
+  assert.equal((await call('admin/users', undefined, login.cookie)).status, 403);
+  const adminCredentials = { name: 'Quản trị', email: 'admin@example.com', password: 'adminPassword123', role: 'admin', disabled: false };
+  const pendingAdmin = await call('register', adminCredentials);
+  assert.equal(pendingAdmin.body.user.role, 'student');
+  assert.equal((await call('admin/users', undefined, pendingAdmin.cookie)).status, 403);
+  const promoted = execFileSync(process.execPath, [path.join(__dirname, 'manage-admin.js'), adminCredentials.email], { encoding: 'utf8', env: process.env });
+  assert.match(promoted, /Đã cấp quyền admin/);
+  assert.equal((await call('me', undefined, pendingAdmin.cookie)).status, 401);
+  const admin = await call('login', adminCredentials);
+  assert.equal(admin.body.user.role, 'admin');
+  const list = await call('admin/users', undefined, admin.cookie);
+  assert.equal(list.status, 200);
+  assert.equal(list.body.stats.total, 4);
+  assert.equal(list.body.stats.admins, 1);
+  assert.equal(list.body.users.some(user => 'password' in user || 'salt' in user), false);
+  const filtered = await call('admin/users?q=binh%40example.com', undefined, admin.cookie);
+  assert.equal(filtered.body.total, 1);
+  assert.equal(filtered.body.users[0].email, 'binh@example.com');
+  assert.equal((await call('admin/users?q=%27%20OR%201%3D1--', undefined, admin.cookie)).body.total, 0);
+  assert.equal((await call('admin/users?page=-1', undefined, admin.cookie)).status, 400);
+  assert.equal((await call('admin/users?status=invalid', undefined, admin.cookie)).status, 400);
+  const detail = await call(`admin/users/${stored.id}`, undefined, admin.cookie);
+  assert.deepEqual(detail.body.user.progress, updated);
+  assert.equal((await call(`admin/users/${stored.id}`, undefined, second.cookie)).status, 403);
+  const statusRoute = `admin/users/${stored.id}/status`;
+  assert.equal((await call(statusRoute, { disabled: true }, second.cookie)).status, 403);
+  assert.equal((await call(statusRoute, { disabled: 'true' }, admin.cookie)).status, 400);
+  assert.equal((await call(statusRoute, { disabled: true }, admin.cookie, { Origin: 'https://untrusted.example' })).status, 403);
+  assert.equal((await call(`admin/users/${admin.body.user.id}/status`, { disabled: true }, admin.cookie)).status, 403);
+  const locked = await call(statusRoute, { disabled: true }, admin.cookie);
+  assert.equal(locked.status, 200);
+  assert.equal(locked.body.user.disabled, true);
+  assert.equal((await call('me', undefined, login.cookie)).status, 401);
+  assert.equal((await call('progress', { action: 'learn', index: 11 }, login.cookie)).status, 401);
+  assert.equal((await call('login', credentials)).status, 403);
+  assert.equal((await call('admin/users?status=disabled', undefined, admin.cookie)).body.total, 1);
+  assert.equal((await call(statusRoute, { disabled: false }, admin.cookie)).status, 200);
+  assert.equal((await call('me', undefined, login.cookie)).status, 401); // old sessions stay revoked
+  const unlocked = await call('login', credentials);
+  assert.equal(unlocked.status, 200);
+  assert.deepEqual(unlocked.body.user.progress, updated);
   db.prepare('UPDATE sessions SET expires = 0 WHERE user_id = ?').run(stored.id);
   assert.equal((await call('me', undefined, login.cookie)).status, 401);
   assert.equal((await fetch(base + '/data/english-lab.sqlite')).status, 404);

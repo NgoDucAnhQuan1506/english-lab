@@ -26,10 +26,36 @@
 
     <main class="main-content">
       <div class="account-bar">
-        <div class="view-tabs" aria-label="Điều hướng cá nhân"><button id="lessonTab" class="secondary-button" aria-pressed="true">Bài học</button><button id="dashboardTab" class="secondary-button" aria-pressed="false">Trang cá nhân</button></div>
+        <div class="view-tabs" aria-label="Điều hướng cá nhân"><button id="lessonTab" class="secondary-button" aria-pressed="true">Bài học</button><button id="dashboardTab" class="secondary-button" aria-pressed="false">Trang cá nhân</button><button id="adminTab" class="secondary-button" aria-pressed="false" hidden>Quản trị</button></div>
         <div class="account-actions"><span id="accountName">Học thử</span><button id="loginButton" class="primary-button">Đăng nhập / Đăng ký</button><button id="logoutButton" class="secondary-button" hidden>Đăng xuất</button></div>
       </div>
       <p id="saveStatus" class="save-status" role="status">Đăng nhập để lưu và theo dõi tiến độ học.</p>
+      <section id="adminView" class="dashboard" hidden aria-labelledby="adminTitle">
+        <span class="eyebrow">ENGLISH LAB · ADMIN</span><h1 id="adminTitle">Quản lý người học</h1><p>Theo dõi tiến độ và quản lý trạng thái tài khoản.</p>
+        <div class="stats-grid">
+          <div class="stat-card"><span>Tổng tài khoản</span><strong id="adminTotal">—</strong></div>
+          <div class="stat-card"><span>Quản trị viên</span><strong id="adminCount">—</strong></div>
+          <div class="stat-card"><span>Tài khoản bị khóa</span><strong id="adminDisabled">—</strong></div>
+          <div class="stat-card"><span>Hoàn thành Alphabet</span><strong id="adminCompleted">—</strong></div>
+        </div>
+        <div class="dashboard-card">
+          <form id="adminSearch" class="admin-search">
+            <label>Tìm theo tên hoặc email<input id="adminQuery" type="search" maxlength="100" placeholder="Nhập tên hoặc email"></label>
+            <label>Trạng thái<select id="adminFilter"><option value="all">Tất cả</option><option value="active">Đang hoạt động</option><option value="disabled">Đã khóa</option></select></label>
+            <button type="submit" class="primary-button">Tìm kiếm / Làm mới</button>
+          </form>
+          <p id="adminStatus" class="save-status" role="status"></p>
+          <div class="admin-table-wrap" tabindex="0" role="region" aria-label="Danh sách tài khoản, cuộn ngang để xem thêm">
+            <table class="admin-table"><caption>Danh sách tài khoản và tiến độ học</caption><thead><tr><th scope="col">Người dùng</th><th scope="col">Vai trò</th><th scope="col">Tiến độ</th><th scope="col">Độ chính xác</th><th scope="col">Trạng thái</th><th scope="col">Thao tác</th></tr></thead><tbody id="adminUsers"></tbody></table>
+          </div>
+          <div class="admin-pagination"><button id="adminPrev" class="secondary-button">← Trước</button><span id="adminPage">Trang 1</span><button id="adminNext" class="secondary-button">Tiếp →</button></div>
+        </div>
+        <section id="adminDetail" class="dashboard-card" hidden aria-labelledby="adminDetailName">
+          <div class="panel-heading"><div><span class="eyebrow">CHI TIẾT NGƯỜI HỌC</span><h2 id="adminDetailName"></h2></div><button id="adminCloseDetail" class="secondary-button">Đóng chi tiết</button></div>
+          <p id="adminDetailEmail"></p><p id="adminDetailSummary"></p>
+          <h3>Chữ đã học</h3><p id="adminDetailLearned"></p><h3>Chữ yêu thích</h3><p id="adminDetailFavorites"></p><h3>Ngày học gần đây</h3><ul id="adminDetailDays"></ul>
+        </section>
+      </section>
       <section id="dashboardView" class="dashboard" hidden aria-labelledby="dashboardTitle">
         <span class="eyebrow">GÓC HỌC TẬP CỦA BẠN</span><h1 id="dashboardTitle">Tiến độ học tập</h1><p id="dashboardGreeting"></p>
         <div class="stats-grid">

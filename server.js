@@ -11,17 +11,21 @@ const db = new DatabaseSync(path.join(dataDir, 'english-lab.sqlite'));
 db.exec(`PRAGMA journal_mode=WAL;
 CREATE TABLE IF NOT EXISTS users (id TEXT PRIMARY KEY, name TEXT NOT NULL, email TEXT UNIQUE NOT NULL, password TEXT NOT NULL, salt TEXT NOT NULL, progress TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS sessions (token TEXT PRIMARY KEY, user_id TEXT NOT NULL, expires INTEGER NOT NULL);`);
+// Upgrade existing databases without replacing accounts or progress.
+const userColumns = db.prepare('PRAGMA table_info(users)').all().map(column => column.name);
+if (!userColumns.includes('role')) db.exec("ALTER TABLE users ADD COLUMN role TEXT NOT NULL DEFAULT 'student'");
+if (!userColumns.includes('disabled')) db.exec('ALTER TABLE users ADD COLUMN disabled INTEGER NOT NULL DEFAULT 0');
 const initialProgress = () => ({ currentIndex: 0, learned: [], favorites: [], attempts: 0, correct: 0, days: [] });
 const publicDir = path.join(__dirname, 'public');
 const types = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.svg': 'image/svg+xml' };
 const tokenHash = token => crypto.createHash('sha256').update(token).digest('hex');
-const expose = user => ({ id: user.id, name: user.name, email: user.email, progress: JSON.parse(user.progress) });
+const expose = user => ({ id: user.id, name: user.name, email: user.email, role: user.role, disabled: !!user.disabled, progress: JSON.parse(user.progress) });
 const failures = new Map();
 const dummySalt = crypto.randomBytes(16).toString('hex');
 function sessionUser(req) {
   const token = /(?:^|;\s*)session=([a-f0-9]{64})(?:;|$)/.exec(req.headers.cookie || '')?.[1];
   if (!token) return null;
-  return db.prepare('SELECT users.* FROM sessions JOIN users ON users.id = sessions.user_id WHERE token = ? AND expires > ?').get(tokenHash(token), Date.now());
+  return db.prepare('SELECT users.* FROM sessions JOIN users ON users.id = sessions.user_id WHERE token = ? AND expires > ? AND users.disabled = 0').get(tokenHash(token), Date.now());
 }
 function cookie(token, age) {
   return `session=${token}; HttpOnly; SameSite=Lax; Path=/; Max-Age=${age}${process.env.NODE_ENV === 'production' ? '; Secure' : ''}`;
@@ -73,18 +77,61 @@ const server = http.createServer(async (req, res) => {
           if (user) reject('Email này đã được đăng ký.', 409);
           const salt = crypto.randomBytes(16).toString('hex');
           const password = (await scrypt(input.password, salt, 64)).toString('hex');
-          try { db.prepare('INSERT INTO users VALUES (?, ?, ?, ?, ?, ?)').run(crypto.randomUUID(), name, email, password, salt, JSON.stringify(initialProgress())); }
+          try { db.prepare('INSERT INTO users (id, name, email, password, salt, progress) VALUES (?, ?, ?, ?, ?, ?)').run(crypto.randomUUID(), name, email, password, salt, JSON.stringify(initialProgress())); }
           catch (error) { if (db.prepare('SELECT id FROM users WHERE email = ?').get(email)) reject('Email này đã được đăng ký.', 409); throw error; }
           user = db.prepare('SELECT * FROM users WHERE email = ?').get(email);
         } else {
           const hash = await scrypt(input.password, user?.salt || dummySalt, 64);
           if (!user || !crypto.timingSafeEqual(hash, Buffer.from(user.password, 'hex'))) reject('Email hoặc mật khẩu chưa đúng.', 401);
+          // Re-read after password hashing so a concurrent lock cannot create a new session.
+          user = db.prepare('SELECT * FROM users WHERE id = ?').get(user.id);
+          if (!user || user.disabled) reject('Tài khoản đã bị khóa. Vui lòng liên hệ quản trị viên.', 403);
         }
         startSession(user, res);
         return json(200, { user: expose(user) });
       }
       const user = sessionUser(req);
       if (!user) reject('Vui lòng đăng nhập để tiếp tục.', 401);
+      if (url.pathname.startsWith('/api/admin/')) {
+        if (user.role !== 'admin') reject('Bạn không có quyền quản trị.', 403);
+        if (url.pathname === '/api/admin/users' && req.method === 'GET') {
+          const query = (url.searchParams.get('q') || '').trim();
+          const status = url.searchParams.get('status') || 'all';
+          const page = Number(url.searchParams.get('page') || 1);
+          if (query.length > 100 || !['all', 'active', 'disabled'].includes(status) || !Number.isSafeInteger(page) || page < 1 || page > 1000000) reject('Bộ lọc không hợp lệ.');
+          const where = `WHERE (instr(lower(name), lower(?)) > 0 OR instr(lower(email), lower(?)) > 0)${status === 'all' ? '' : ' AND disabled = ' + (status === 'disabled' ? '1' : '0')}`;
+          const total = db.prepare(`SELECT count(*) AS total FROM users ${where}`).get(query, query).total;
+          const users = db.prepare(`SELECT * FROM users ${where} ORDER BY name COLLATE NOCASE, id LIMIT 20 OFFSET ?`).all(query, query, (page - 1) * 20).map(expose);
+          const stats = db.prepare(`SELECT count(*) AS total, coalesce(sum(disabled), 0) AS disabled,
+            coalesce(sum(role = 'admin'), 0) AS admins,
+            coalesce(sum(json_array_length(json_extract(progress, '$.learned')) = 26), 0) AS completed
+            FROM users`).get();
+          return json(200, { users, total, page, pageSize: 20, stats });
+        }
+        const match = /^\/api\/admin\/users\/([a-f0-9-]+)(\/status)?$/.exec(url.pathname);
+        if (match && !match[2] && req.method === 'GET') {
+          const target = db.prepare('SELECT * FROM users WHERE id = ?').get(match[1]);
+          if (!target) reject('Không tìm thấy người dùng.', 404);
+          return json(200, { user: expose(target) });
+        }
+        if (match?.[2] && req.method === 'POST') {
+          const input = await body(req);
+          const actor = sessionUser(req);
+          if (!actor || actor.role !== 'admin') reject('Bạn không có quyền quản trị.', 403);
+          if (typeof input.disabled !== 'boolean') reject('Trạng thái không hợp lệ.');
+          const target = db.prepare('SELECT * FROM users WHERE id = ?').get(match[1]);
+          if (!target) reject('Không tìm thấy người dùng.', 404);
+          if (target.id === actor.id || target.role === 'admin') reject('Không thể khóa hoặc thay đổi trạng thái tài khoản quản trị.', 403);
+          db.exec('BEGIN IMMEDIATE');
+          try {
+            db.prepare('UPDATE users SET disabled = ? WHERE id = ?').run(input.disabled ? 1 : 0, target.id);
+            if (input.disabled) db.prepare('DELETE FROM sessions WHERE user_id = ?').run(target.id);
+            db.exec('COMMIT');
+          } catch (error) { db.exec('ROLLBACK'); throw error; }
+          return json(200, { user: expose(db.prepare('SELECT * FROM users WHERE id = ?').get(target.id)) });
+        }
+        return json(404, { error: 'Không tìm thấy chức năng quản trị.' });
+      }
       if (url.pathname === '/api/me' && req.method === 'GET') return json(200, { user: expose(user) });
       if (url.pathname === '/api/logout' && req.method === 'POST') {
         const token = /(?:^|;\s*)session=([a-f0-9]{64})/.exec(req.headers.cookie || '')?.[1];

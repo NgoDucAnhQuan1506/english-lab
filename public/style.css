@@ -66,3 +66,27 @@ dialog h2 { font-size:25px; margin:15px 0 10px; } dialog p { color:var(--muted);
 #authForm small { color:var(--muted); font-size:11px; } #authForm .auth-error { color:#ffacb9; min-height:20px; }
 #authSubmit { width:100%; padding:13px; }
 @media(max-width:620px) { .stats-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }.account-bar { align-items:flex-start; gap:16px; }.account-actions { width:100%; justify-content:space-between; }.dashboard h1 { font-size:29px; } dialog { padding:26px; } }
+
+.admin-search { display:flex; align-items:end; gap:12px; flex-wrap:wrap; }
+.admin-search label { display:grid; gap:7px; color:var(--muted); font-size:12px; }
+.admin-search label:first-child { flex:1; min-width:180px; }
+.admin-search input,.admin-search select { width:100%; background:#080f1c; color:var(--ink); border:1px solid #36506f; border-radius:8px; padding:10px; font:inherit; }
+.admin-search input:focus-visible,.admin-search select:focus-visible { outline:2px solid #62b5ff; outline-offset:2px; }
+.admin-table-wrap { overflow:auto; border:1px solid var(--line); border-radius:10px; }
+.admin-table { border-collapse:collapse; width:100%; font-size:12px; text-align:left; }
+.admin-table caption { text-align:left; padding:14px; color:var(--muted); }
+.admin-table th { color:#a4d7ff; background:#12243c; font-weight:600; }
+.admin-table th,.admin-table td { padding:13px 12px; border-bottom:1px solid var(--line); vertical-align:middle; }
+.admin-table tr:last-child td { border-bottom:0; }
+.admin-table td:first-child { min-width:180px; overflow-wrap:anywhere; }
+.admin-table td small { display:block; margin-top:5px; color:var(--muted); }
+.admin-table td:not(:first-child) { white-space:nowrap; }
+.admin-row-actions button + button { margin-left:8px; }
+.account-disabled { color:#ffacb9; }.account-active { color:#83e4c4; }
+.danger-button { background:#412132; color:#ffd6de; border:1px solid #91516a; border-radius:9px; padding:9px 12px; font-size:11px; }
+.danger-button:hover { background:#602b41; }
+.admin-pagination { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:18px; }
+.admin-pagination span { color:var(--muted); font-size:12px; }
+#adminDetail { scroll-margin-top:20px; overflow-wrap:anywhere; }
+#adminDetail h3 { font-size:14px; color:#a4d7ff; margin-top:20px; }
+@media(max-width:620px) { .admin-search > button { width:100%; }.admin-search label { flex:1; }.admin-table { min-width:760px; }.admin-pagination { flex-wrap:wrap; } }

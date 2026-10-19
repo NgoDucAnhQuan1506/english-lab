@@ -48,7 +48,8 @@ async function api(route, data) {
 }
 function setBusy(value) {
   busy = value;
-  document.querySelectorAll('#lessonView button, .account-bar button, #dashboardView button, #authForm button, #closeAuth, .auth-tabs button').forEach(button => { button.disabled = value; });
+  document.querySelectorAll('#lessonView button, .account-bar button, #dashboardView button, #adminView button, #adminView input, #adminView select, #authForm button, #closeAuth, .auth-tabs button').forEach(button => { button.disabled = value; });
+  syncAdminPagination();
 }
 function applyProgress(value) {
   progress = value;
@@ -169,11 +170,21 @@ function showView(dashboard) {
   if (dashboard && !currentUser) { openAuth(); return; }
   $('dashboardView').hidden = !dashboard;
   $('lessonView').hidden = dashboard;
+  $('adminView').hidden = true;
+  $('adminTab').setAttribute('aria-pressed', false);
   $('lessonTab').setAttribute('aria-pressed', !dashboard);
   $('dashboardTab').setAttribute('aria-pressed', dashboard);
 }
 function updateAccount(user) {
   currentUser = user;
+  adminUsers = []; adminPage = 1; adminTotal = 0;
+  adminQuery = ''; adminFilter = 'all';
+  $('adminUsers').replaceChildren(); $('adminDetail').hidden = true;
+  ['adminDetailName', 'adminDetailEmail', 'adminDetailSummary', 'adminDetailLearned', 'adminDetailFavorites'].forEach(id => { $(id).textContent = ''; });
+  $('adminDetailDays').replaceChildren();
+  $('adminSearch').reset(); $('adminStatus').textContent = '';
+  ['adminTotal', 'adminCount', 'adminDisabled', 'adminCompleted'].forEach(id => { $(id).textContent = '—'; });
+  $('adminTab').hidden = user?.role !== 'admin';
   clearTimeout(quizTimer); quizRound = 0;
   applyProgress(user?.progress || emptyProgress()); renderQuiz();
   $('accountName').textContent = user?.name || 'Học thử';
@@ -231,4 +242,110 @@ async function init() {
   catch (error) { if (error.status !== 401) $('saveStatus').textContent = 'Không kết nối được máy chủ. Tải lại trang để thử kết nối lại.'; }
   finally { setBusy(false); }
 }
+let adminUsers = [];
+let adminPage = 1;
+let adminTotal = 0;
+let adminPageSize = 20;
+let adminQuery = '';
+let adminFilter = 'all';
+function syncAdminPagination() {
+  $('adminPrev').disabled = busy || adminPage <= 1;
+  $('adminNext').disabled = busy || adminPage * adminPageSize >= adminTotal;
+}
+function adminError(error) {
+  if (error.status === 401) {
+    updateAccount(null); openAuth();
+    $('saveStatus').textContent = 'Phiên đăng nhập không còn hiệu lực. Vui lòng đăng nhập lại.';
+  } else if (error.status === 403) {
+    $('adminTab').hidden = true; showView(true);
+    $('saveStatus').textContent = 'Tài khoản không có quyền quản trị.';
+  } else $('adminStatus').textContent = error.message || 'Không kết nối được máy chủ. Vui lòng thử lại.';
+}
+async function fetchAdminUsers(page) {
+  const params = new URLSearchParams({ q: adminQuery, status: adminFilter, page });
+  const result = await api(`admin/users?${params}`);
+  // If the last row left the current filter, return to the previous valid page.
+  const lastPage = Math.max(1, Math.ceil(result.total / result.pageSize));
+  if (page > lastPage) return fetchAdminUsers(lastPage);
+  adminUsers = result.users; adminPage = result.page; adminTotal = result.total; adminPageSize = result.pageSize;
+  $('adminTotal').textContent = result.stats.total;
+  $('adminCount').textContent = result.stats.admins;
+  $('adminDisabled').textContent = result.stats.disabled;
+  $('adminCompleted').textContent = result.stats.completed;
+  renderAdminUsers();
+  $('adminPage').textContent = `Trang ${adminPage} / ${lastPage} · ${adminTotal} tài khoản`;
+  $('adminStatus').textContent = adminTotal ? `Tìm thấy ${adminTotal} tài khoản.` : 'Không tìm thấy tài khoản phù hợp.';
+}
+function renderAdminUsers() {
+  $('adminUsers').replaceChildren(...adminUsers.map(user => {
+    const row = document.createElement('tr');
+    const cell = text => { const td = document.createElement('td'); td.textContent = text; row.append(td); return td; };
+    const identity = cell(user.name);
+    const email = document.createElement('small'); email.textContent = user.email; identity.append(email);
+    cell(user.role === 'admin' ? 'Admin' : 'Người học');
+    cell(`${user.progress.learned.length}/26 · ${Math.round(user.progress.learned.length / 26 * 100)}%`);
+    cell(user.progress.attempts ? `${Math.round(user.progress.correct / user.progress.attempts * 100)}%` : 'Chưa luyện tập');
+    const status = cell(user.disabled ? 'Đã khóa' : 'Hoạt động'); status.className = user.disabled ? 'account-disabled' : 'account-active';
+    const actions = cell(''); actions.className = 'admin-row-actions';
+    const detail = document.createElement('button'); detail.className = 'secondary-button'; detail.textContent = 'Chi tiết';
+    detail.setAttribute('aria-label', `Xem tiến độ của ${user.name}`); detail.addEventListener('click', () => loadAdminDetail(user.id)); actions.append(detail);
+    if (user.role !== 'admin') {
+      const toggle = document.createElement('button'); toggle.className = user.disabled ? 'secondary-button' : 'danger-button';
+      toggle.textContent = user.disabled ? 'Mở khóa' : 'Khóa'; toggle.setAttribute('aria-label', `${toggle.textContent} tài khoản ${user.email}`);
+      toggle.addEventListener('click', () => changeUserStatus(user)); actions.append(toggle);
+    }
+    return row;
+  }));
+}
+function renderAdminDetail(user) {
+  const p = user.progress;
+  $('adminDetail').hidden = false;
+  $('adminDetailName').textContent = user.name;
+  $('adminDetailEmail').textContent = `${user.email} · ${user.role === 'admin' ? 'Admin' : 'Người học'} · ${user.disabled ? 'Đã khóa' : 'Hoạt động'}`;
+  $('adminDetailSummary').textContent = `${p.learned.length}/26 chữ đã học · Đang học chữ ${letters[p.currentIndex].letter} · ${p.correct}/${p.attempts} lượt trả lời đúng · ${p.days.length} ngày học`;
+  const letterList = indices => [...indices].sort((a, b) => a - b).map(index => letters[index].letter).join(', ') || 'Chưa có';
+  $('adminDetailLearned').textContent = letterList(p.learned);
+  $('adminDetailFavorites').textContent = letterList(p.favorites);
+  $('adminDetailDays').replaceChildren(...(p.days.length ? p.days.slice(-14).reverse() : [null]).map(day => {
+    const li = document.createElement('li'); li.textContent = day ? day.split('-').reverse().join('/') : 'Chưa có hoạt động học tập.'; return li;
+  }));
+}
+async function loadAdminDetail(id) {
+  if (busy) return; setBusy(true); $('adminDetail').hidden = true;
+  try {
+    const result = await api(`admin/users/${encodeURIComponent(id)}`);
+    renderAdminDetail(result.user);
+    $('adminDetail').scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth', block: 'start' });
+  } catch (error) { adminError(error); }
+  finally { setBusy(false); }
+}
+async function changeUserStatus(user) {
+  if (busy || !window.confirm(`${user.disabled ? 'Mở khóa' : 'Khóa'} tài khoản ${user.email}?${user.disabled ? '' : ' Người dùng sẽ được đăng xuất và không thể đăng nhập cho đến khi mở khóa.'}`)) return;
+  setBusy(true);
+  try {
+    const result = await api(`admin/users/${encodeURIComponent(user.id)}/status`, { disabled: !user.disabled });
+    renderAdminDetail(result.user);
+    await fetchAdminUsers(adminPage);
+    $('adminStatus').textContent = `Đã ${result.user.disabled ? 'khóa' : 'mở khóa'} tài khoản ${user.email}.`;
+  } catch (error) { adminError(error); }
+  finally { setBusy(false); }
+}
+async function loadAdminPage(page = 1) {
+  if (busy || currentUser?.role !== 'admin') return;
+  showView(true); $('dashboardView').hidden = true; $('adminView').hidden = false;
+  $('dashboardTab').setAttribute('aria-pressed', false); $('adminTab').setAttribute('aria-pressed', true);
+  $('adminDetail').hidden = true; $('adminUsers').replaceChildren();
+  setBusy(true); $('adminStatus').textContent = 'Đang tải danh sách…';
+  try { await fetchAdminUsers(page); }
+  catch (error) { adminError(error); }
+  finally { setBusy(false); }
+}
+$('adminTab').addEventListener('click', () => loadAdminPage());
+$('adminSearch').addEventListener('submit', event => {
+  event.preventDefault(); if (busy) return;
+  adminQuery = $('adminQuery').value.trim(); adminFilter = $('adminFilter').value; loadAdminPage();
+});
+$('adminPrev').addEventListener('click', () => loadAdminPage(adminPage - 1));
+$('adminNext').addEventListener('click', () => loadAdminPage(adminPage + 1));
+$('adminCloseDetail').addEventListener('click', () => { $('adminDetail').hidden = true; });
 init();

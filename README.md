@@ -81,6 +81,23 @@ Máy chủ lưu dữ liệu tại `data/english-lab.sqlite`, ngoài thư mục p
 
 Chạy kiểm tra API bằng `npm test`. Chưa có xác minh email hoặc đặt lại mật khẩu.
 
+## Trang quản trị (Admin)
+
+1. Khởi động web và đăng ký một tài khoản bằng email của bạn.
+2. Từ thư mục dự án trên máy chủ, cấp quyền cho email đã đăng ký:
+
+   ```powershell
+   node manage-admin.js ban@example.com
+   ```
+
+3. Đăng nhập lại rồi chọn **Quản trị** trên thanh điều hướng.
+
+Admin có thể tìm tài khoản theo tên/email, lọc theo trạng thái, xem danh sách phân trang và xem tiến độ chi tiết: chữ đã học, chữ yêu thích, số câu trả lời đúng, số ngày học và 14 ngày hoạt động gần đây nhất. Các số tổng quan tính trên toàn bộ tài khoản, kể cả admin.
+
+Chọn **Khóa** hoặc **Mở khóa** để quản lý người học. Khóa tài khoản thu hồi các phiên đăng nhập ngay lập tức; mở khóa yêu cầu người học đăng nhập lại và giữ nguyên tiến độ. Admin không thể khóa chính mình hoặc tài khoản admin khác.
+
+Không có tài khoản/mật khẩu admin mặc định. Đăng ký công khai luôn tạo người học; chỉ người có quyền chạy lệnh trên máy chủ mới cấp được quyền admin. Nếu dùng `DATA_DIR`, chạy lệnh cấp quyền với cùng giá trị `DATA_DIR` của máy chủ. Lệnh cấp quyền thu hồi phiên cũ để yêu cầu đăng nhập lại. Các tài khoản cũ tự động được chuyển sang vai trò người học khi cập nhật ứng dụng, không mất tiến độ.
+
 ## Triển khai lên Render
 
 English Lab sử dụng Node.js server nên có thể triển khai nhanh trên Render:
