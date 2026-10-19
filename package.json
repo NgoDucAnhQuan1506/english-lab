@@ -3,9 +3,16 @@
   "version": "1.0.0",
   "description": "Ung dung hoc bang chu cai tieng Anh bang Node.js",
   "main": "server.js",
-  "engines": { "node": ">=22.13.0" },
+  "engines": {
+    "node": ">=22.13.0"
+  },
   "scripts": {
     "start": "node server.js",
-    "test": "node --test server.test.js"
+    "test": "node --test server.test.js study.test.js",
+    "test:browser": "node browser-smoke.cjs",
+    "check": "node --check server.js && node --check database.js && node --check public/app.js && node --check public/course-ui.js && node --check public/curriculum.js && node --check public/study-engine.js"
+  },
+  "dependencies": {
+    "pg": "^8.23.1"
   }
 }

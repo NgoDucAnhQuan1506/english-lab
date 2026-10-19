@@ -4,8 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#080c14">
-  <title>English Lab | Alphabet</title>
+  <title>English Lab | 30 ngày nền tảng</title>
   <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/course.css">
 </head>
 <body>
   <div class="app-shell">
@@ -14,11 +15,14 @@
         <div class="brand-mark">A<span>+</span></div>
         <div><strong>English Lab</strong><small>Học từng chút, nhớ thật lâu</small></div>
       </div>
-      <div class="course-label">LỘ TRÌNH CƠ BẢN</div>
+      <div class="course-label">15–20 PHÚT MỖI NGÀY</div>
       <nav class="lesson-nav" aria-label="Các bài học">
-        <button class="lesson active"><span class="lesson-icon">Aa</span><span><b>Alphabet</b><small>Bảng chữ cái</small></span><i>1</i></button>
-        <button class="lesson locked"><span class="lesson-icon">🔒</span><span><b>Sounds</b><small>Âm cơ bản</small></span><i>2</i></button>
-        <button class="lesson locked"><span class="lesson-icon">🔒</span><span><b>First words</b><small>Từ vựng đầu tiên</small></span><i>3</i></button>
+        <button class="lesson active" data-screen="today">◉ Hôm nay</button>
+        <button class="lesson" data-screen="roadmap">▦ Lộ trình</button>
+        <button class="lesson" data-screen="review">↻ Ôn tập</button>
+        <button class="lesson" data-screen="notebook">♡ Sổ tay</button>
+        <button class="lesson" data-screen="progress">▥ Tiến độ</button>
+        <button class="lesson" data-screen="account">◎ Tài khoản</button>
       </nav>
       <div class="side-note"><span class="spark">✦</span><b>Mẹo nhỏ</b><p>Đọc to mỗi chữ cái 2 lần để tạo phản xạ tự nhiên.</p></div>
       <div class="profile"><div class="avatar" id="profileAvatar">TA</div><div><b id="profileName">Khách</b><small id="profileHint">Đăng nhập để lưu tiến độ</small></div></div>
@@ -26,17 +30,18 @@
 
     <main class="main-content">
       <div class="account-bar">
-        <div class="view-tabs" aria-label="Điều hướng cá nhân"><button id="lessonTab" class="secondary-button" aria-pressed="true">Bài học</button><button id="dashboardTab" class="secondary-button" aria-pressed="false">Trang cá nhân</button><button id="adminTab" class="secondary-button" aria-pressed="false" hidden>Quản trị</button></div>
+        <div class="view-tabs" aria-label="Điều hướng cá nhân"><button id="lessonTab" class="secondary-button" aria-pressed="true">Hôm nay</button><button id="dashboardTab" class="secondary-button" aria-pressed="false">Tiến độ</button><button id="adminTab" class="secondary-button" aria-pressed="false" hidden>Quản trị</button><button id="themeButton" class="secondary-button" aria-label="Chuyển chế độ sáng tối">Sáng / Tối</button></div>
         <div class="account-actions"><span id="accountName">Học thử</span><button id="loginButton" class="primary-button">Đăng nhập / Đăng ký</button><button id="logoutButton" class="secondary-button" hidden>Đăng xuất</button></div>
       </div>
       <p id="saveStatus" class="save-status" role="status">Đăng nhập để lưu và theo dõi tiến độ học.</p>
+      <section id="courseRoot" aria-label="Khóa học 30 ngày"><p role="status">Đang mở góc học tập…</p></section>
       <section id="adminView" class="dashboard" hidden aria-labelledby="adminTitle">
         <span class="eyebrow">ENGLISH LAB · ADMIN</span><h1 id="adminTitle">Quản lý người học</h1><p>Theo dõi tiến độ và quản lý trạng thái tài khoản.</p>
         <div class="stats-grid">
           <div class="stat-card"><span>Tổng tài khoản</span><strong id="adminTotal">—</strong></div>
           <div class="stat-card"><span>Quản trị viên</span><strong id="adminCount">—</strong></div>
           <div class="stat-card"><span>Tài khoản bị khóa</span><strong id="adminDisabled">—</strong></div>
-          <div class="stat-card"><span>Hoàn thành Alphabet</span><strong id="adminCompleted">—</strong></div>
+          <div class="stat-card"><span>Hoàn thành 30 ngày</span><strong id="adminCompleted">—</strong></div>
         </div>
         <div class="dashboard-card">
           <form id="adminSearch" class="admin-search">
@@ -68,15 +73,15 @@
         <div class="dashboard-card"><h2>Chữ cái yêu thích</h2><p id="favoriteEmpty">Bấm trái tim trong bài học để thêm chữ yêu thích.</p><div id="favoriteLetters" class="favorite-letters"></div></div>
         <div class="dashboard-card"><h2>Hoạt động gần đây</h2><p id="activityEmpty">Bắt đầu bài học để ghi lại hoạt động của bạn.</p><ul id="activityList"></ul></div>
       </section>
-      <div id="lessonView">
-      <header class="topbar"><div><span class="eyebrow">BÀI HỌC 01 / ALPHABET</span><h1>Chào bạn, cùng làm quen<br>với <em>bảng chữ cái</em> nhé!</h1></div><div class="streak"><span>☀</span><div><b>0 ngày</b><small>Chuỗi học tập</small></div></div></header>
+      <div id="lessonView" hidden>
+      <header class="topbar"><div><span class="eyebrow">CÔNG CỤ LUYỆN THÊM</span><h1>Bảng chữ cái</h1><p>Tiếp theo chỉ ghi đã xem. Trả lời đúng hai lần cho cùng chữ mới được tính đạt. Tiến độ cũ được giữ lại.</p></div><div class="streak"><span>☀</span><div><b>0 ngày</b><small>Chuỗi học tập</small></div></div></header>
 
       <section class="progress-row"><div class="progress-copy"><b>Tiến độ bài học</b><span id="progressText">1 / 26 chữ cái</span></div><div class="progress-track"><div id="progressBar" class="progress-fill"></div></div><span class="percent" id="progressPercent">4%</span></section>
 
       <section class="learning-grid">
         <div class="letter-panel">
-          <div class="panel-heading"><div><span class="eyebrow">CHỮ CÁI HIỆN TẠI</span><h2 id="letterTitle">A a</h2></div><button class="icon-button" id="favoriteButton" aria-label="Đánh dấu yêu thích">♡</button></div>
-          <div class="letter-stage"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="big-letter" id="bigLetter">A</div><div class="sound-chip"><span class="sound-wave">◖</span><span id="soundText">/eɪ/</span><button id="speakButton" aria-label="Nghe phát âm">🔊</button></div></div>
+          <div class="panel-heading"><div><span class="eyebrow">CHỮ CÁI HIỆN TẠI</span><h2 id="letterTitle">A a</h2><p id="letterStatus">Chưa xem</p></div><button class="icon-button" id="favoriteButton" aria-label="Đánh dấu yêu thích">♡</button></div>
+          <div class="letter-stage"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="big-letter" id="bigLetter">A</div><div class="sound-chip"><span>Tên chữ</span><span id="soundText">/eɪ/</span><button id="speakButton" aria-label="Nghe tên chữ cái">🔊</button></div></div>
           <div class="word-card"><div class="word-image" id="wordEmoji">🍎</div><div><span class="eyebrow">TỪ VÍ DỤ</span><h3 id="wordText">Apple</h3><p id="wordMeaning">Quả táo</p></div><button class="play-word" id="wordSpeakButton" aria-label="Nghe từ ví dụ">▶</button></div>
           <div class="navigation"><button class="secondary-button" id="prevButton">← Trước</button><span id="cardCount">01 / 26</span><button class="primary-button" id="nextButton">Tiếp theo <span>→</span></button></div>
         </div>
@@ -107,6 +112,9 @@
       <button id="authSubmit" class="primary-button" type="submit">Đăng nhập</button>
     </form>
   </dialog>
+  <script src="/curriculum.js"></script>
+  <script src="/study-engine.js"></script>
   <script src="/app.js"></script>
+  <script src="/course-ui.js"></script>
 </body>
 </html>

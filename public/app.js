@@ -39,9 +39,9 @@ let registering = false;
 let progress = emptyProgress();
 const quizWords = [letters[0], letters[3], letters[14]];
 const $ = id => document.getElementById(id);
-function emptyProgress() { return { currentIndex: 0, learned: [], favorites: [], attempts: 0, correct: 0, days: [] }; }
+function emptyProgress() { return { currentIndex: 0, learned: [], favorites: [], attempts: 0, correct: 0, days: [], viewed: [], letterScores: {} }; }
 async function api(route, data) {
-  const response = await fetch(`/api/${route}`, { method: data === undefined ? 'GET' : 'POST', credentials: 'same-origin', headers: data === undefined ? {} : { 'Content-Type': 'application/json' }, body: data === undefined ? undefined : JSON.stringify(data) });
+  const response = await fetch(`/api/${route}`, { signal: AbortSignal.timeout(15000), method: data === undefined ? 'GET' : 'POST', credentials: 'same-origin', headers: data === undefined ? {} : { 'Content-Type': 'application/json' }, body: data === undefined ? undefined : JSON.stringify(data) });
   const result = await response.json();
   if (!response.ok) throw Object.assign(new Error(result.error || 'Không thể thực hiện yêu cầu.'), { status: response.status });
   return result;
@@ -68,15 +68,17 @@ async function record(action, details) {
       $('saveStatus').textContent = 'Đã lưu tiến độ vào tài khoản.';
     } else {
       const value = structuredClone(progress);
-      if (action === 'view') value.currentIndex = details.index;
-      if (action === 'learn') value.learned = [...new Set([...value.learned, details.index])];
+      if (action === 'view') { value.currentIndex = details.index; value.viewed = [...new Set([...(value.viewed || []), details.index])]; }
+      if (action === 'learn') value.viewed = [...new Set([...(value.viewed || []), details.index])];
       if (action === 'favorite') value.favorites = value.favorites.includes(details.index) ? value.favorites.filter(n => n !== details.index) : [...value.favorites, details.index];
       if (action === 'answer') {
         value.attempts++;
-        if (details.index === details.answer) { value.correct++; value.learned = [...new Set([...value.learned, details.index])]; }
+        if (details.index === details.answer) { value.correct++; value.letterScores ||= {}; value.letterScores[details.index] = (value.letterScores[details.index] || 0) + 1; if (value.letterScores[details.index] >= 2) value.learned = [...new Set([...value.learned, details.index])]; }
       }
       applyProgress(value);
+      try { localStorage.setItem('englishlab.alphabet.guest', JSON.stringify(value)); } catch {}
     }
+    if (action === 'view') renderQuiz();
     return true;
   } catch (error) {
     $('saveStatus').textContent = error.status === 401 ? 'Phiên đăng nhập đã hết hạn. Đăng nhập lại để tiếp tục lưu.' : 'Chưa lưu được. Kiểm tra kết nối rồi thử lại thao tác.';
@@ -85,6 +87,7 @@ async function record(action, details) {
   } finally { setBusy(false); }
 }
 const speak = text => {
+  if (window.CourseUI) return window.CourseUI.audio(text);
   if (!('speechSynthesis' in window)) return;
   window.speechSynthesis.cancel();
   const utterance = new SpeechSynthesisUtterance(text);
@@ -99,6 +102,7 @@ function renderLetter() {
   $('wordEmoji').textContent = item.emoji;
   $('wordText').textContent = item.word;
   $('wordMeaning').textContent = item.meaning;
+  $('letterStatus').textContent = learned.has(currentIndex) ? '✓ Đã đạt (hoặc đã học từ phiên bản trước)' : progress.letterScores?.[currentIndex] ? '◉ Đang luyện · cần hai lần trả lời đúng' : progress.viewed?.includes(currentIndex) ? 'Đã xem · chưa tính đạt' : 'Chưa xem';
   $('cardCount').textContent = `${String(currentIndex + 1).padStart(2, '0')} / 26`;
   $('progressText').textContent = `${learned.size} / 26 chữ cái đã học`;
   $('progressPercent').textContent = `${Math.round(learned.size / 26 * 100)}%`;
@@ -111,18 +115,18 @@ function letterButton(index) {
   const button = document.createElement('button');
   button.className = `alphabet-card ${learned.has(index) ? 'learned' : ''} ${index === currentIndex ? 'selected' : ''}`;
   button.textContent = letters[index].letter;
-  button.setAttribute('aria-label', `Học chữ ${letters[index].letter}${learned.has(index) ? ', đã học' : ''}`);
-  button.addEventListener('click', async () => { if (await record('view', { index })) showView(false); });
+  button.setAttribute('aria-label', `Học chữ ${letters[index].letter}: ${learned.has(index) ? 'đã đạt' : progress.letterScores?.[index] ? 'đang luyện' : progress.viewed?.includes(index) ? 'đã xem' : 'chưa xem'}`);
+  button.addEventListener('click', async () => { if (await record('view', { index })) window.CourseUI ? window.CourseUI.show('alphabet') : showView(false); });
   return button;
 }
 function renderAlphabet() { $('alphabetGrid').replaceChildren(...letters.map((_, index) => letterButton(index))); }
 function renderQuiz() {
   clearTimeout(quizTimer);
   quizLocked = false;
-  const item = quizWords[quizRound];
+  const item = letters[currentIndex];
   const options = [item, ...letters.filter(letter => letter !== item).sort(() => Math.random() - .5).slice(0, 3)].sort(() => Math.random() - .5);
   $('quizWord').textContent = item.word;
-  $('questionCount').textContent = `Câu ${quizRound + 1}/3`;
+  $('questionCount').textContent = `Luyện chữ ${item.letter}`;
   $('feedback').textContent = 'Chọn một đáp án để kiểm tra nhé.';
   $('feedback').className = 'feedback';
   $('quizOptions').replaceChildren(...options.map(option => {
@@ -135,7 +139,7 @@ function renderQuiz() {
 async function checkAnswer(button, answer, chosen) {
   if (busy || quizLocked) return;
   quizLocked = true;
-  if (!await record('answer', { index: letters.findIndex(item => item.letter === answer), answer: letters.findIndex(item => item.letter === chosen) })) { quizLocked = false; return; }
+  if (!await record('answer', { id: crypto.randomUUID(), index: letters.findIndex(item => item.letter === answer), answer: letters.findIndex(item => item.letter === chosen) })) { quizLocked = false; return; }
   document.querySelectorAll('.quiz-option').forEach(option => { option.disabled = true; });
   const correct = chosen === answer;
   button.classList.add(correct ? 'correct' : 'wrong');
@@ -174,6 +178,7 @@ function showView(dashboard) {
   $('adminTab').setAttribute('aria-pressed', false);
   $('lessonTab').setAttribute('aria-pressed', !dashboard);
   $('dashboardTab').setAttribute('aria-pressed', dashboard);
+  window.CourseUI?.show(dashboard ? 'progress' : 'today');
 }
 function updateAccount(user) {
   currentUser = user;
@@ -186,7 +191,9 @@ function updateAccount(user) {
   ['adminTotal', 'adminCount', 'adminDisabled', 'adminCompleted'].forEach(id => { $(id).textContent = '—'; });
   $('adminTab').hidden = user?.role !== 'admin';
   clearTimeout(quizTimer); quizRound = 0;
-  applyProgress(user?.progress || emptyProgress()); renderQuiz();
+  let alphabetGuest = emptyProgress();
+  try { alphabetGuest = JSON.parse(localStorage.getItem('englishlab.alphabet.guest')) || alphabetGuest; } catch {}
+  applyProgress(user?.progress || alphabetGuest); renderQuiz();
   $('accountName').textContent = user?.name || 'Học thử';
   $('profileName').textContent = user?.name || 'Khách';
   $('profileHint').textContent = user?.email || 'Đăng nhập để lưu tiến độ';
@@ -196,6 +203,7 @@ function updateAccount(user) {
   $('logoutButton').hidden = !user;
   $('saveStatus').textContent = user ? 'Tiến độ được lưu tự động theo tài khoản.' : 'Đăng nhập để lưu và theo dõi tiến độ học. Tiến độ học thử chỉ có trong phiên này.';
   showView(!!user);
+  window.CourseUI?.account(user);
 }
 function authMode(signUp) {
   registering = signUp;
@@ -283,8 +291,8 @@ function renderAdminUsers() {
     const identity = cell(user.name);
     const email = document.createElement('small'); email.textContent = user.email; identity.append(email);
     cell(user.role === 'admin' ? 'Admin' : 'Người học');
-    cell(`${user.progress.learned.length}/26 · ${Math.round(user.progress.learned.length / 26 * 100)}%`);
-    cell(user.progress.attempts ? `${Math.round(user.progress.correct / user.progress.attempts * 100)}%` : 'Chưa luyện tập');
+    cell(`${user.studySummary?.completed || 0}/30 ngày`);
+    cell(user.studySummary?.attempts ? `${Math.round(user.studySummary.correct / user.studySummary.attempts * 100)}%` : 'Chưa luyện tập');
     const status = cell(user.disabled ? 'Đã khóa' : 'Hoạt động'); status.className = user.disabled ? 'account-disabled' : 'account-active';
     const actions = cell(''); actions.className = 'admin-row-actions';
     const detail = document.createElement('button'); detail.className = 'secondary-button'; detail.textContent = 'Chi tiết';
@@ -303,6 +311,7 @@ function renderAdminDetail(user) {
   $('adminDetailName').textContent = user.name;
   $('adminDetailEmail').textContent = `${user.email} · ${user.role === 'admin' ? 'Admin' : 'Người học'} · ${user.disabled ? 'Đã khóa' : 'Hoạt động'}`;
   $('adminDetailSummary').textContent = `${p.learned.length}/26 chữ đã học · Đang học chữ ${letters[p.currentIndex].letter} · ${p.correct}/${p.attempts} lượt trả lời đúng · ${p.days.length} ngày học`;
+  if (user.studySummary) $('adminDetailSummary').textContent = `${user.studySummary.completed}/30 ngày đạt · ${user.studySummary.correct}/${user.studySummary.attempts} câu đúng · ${user.studySummary.days} ngày học · ${Math.floor(user.studySummary.seconds / 60)} phút hoạt động`;
   const letterList = indices => [...indices].sort((a, b) => a - b).map(index => letters[index].letter).join(', ') || 'Chưa có';
   $('adminDetailLearned').textContent = letterList(p.learned);
   $('adminDetailFavorites').textContent = letterList(p.favorites);
@@ -333,6 +342,7 @@ async function changeUserStatus(user) {
 async function loadAdminPage(page = 1) {
   if (busy || currentUser?.role !== 'admin') return;
   showView(true); $('dashboardView').hidden = true; $('adminView').hidden = false;
+  $('courseRoot').hidden = true;
   $('dashboardTab').setAttribute('aria-pressed', false); $('adminTab').setAttribute('aria-pressed', true);
   $('adminDetail').hidden = true; $('adminUsers').replaceChildren();
   setBusy(true); $('adminStatus').textContent = 'Đang tải danh sách…';
