@@ -1,0 +1,112 @@
+{
+  "at": "2026-10-26T00:05:06.803Z",
+  "browser": "C:/Program Files/Google/Chrome/Application/chrome.exe",
+  "results": [
+    {
+      "name": "All 42 lessons open with real teaching, models and objectives",
+      "result": "PASS"
+    },
+    {
+      "name": "F5 restores exact lesson, question and unfinished input; duplicate click stays one event",
+      "result": "PASS"
+    },
+    {
+      "name": "Closing the tab and opening another keeps the exact draft",
+      "result": "PASS"
+    },
+    {
+      "name": "Offline F5 opens cached public course and keeps draft; no account API is cached",
+      "result": "PASS"
+    },
+    {
+      "name": "Keyboard submits correctly and 10-minute session stops after 3 actual answers",
+      "result": "PASS"
+    },
+    {
+      "name": "Wrong and supported answers give explanations; complete attempt is distinct from passing",
+      "result": "PASS"
+    },
+    {
+      "name": "New learner completes lesson 1 from start to passing summary",
+      "result": "PASS"
+    },
+    {
+      "name": "Sentence lesson 20 completes through choice, text, ordering and final assessment",
+      "result": "PASS"
+    },
+    {
+      "name": "Dialogue translations, role practice and denied microphone remain usable",
+      "result": "PASS"
+    },
+    {
+      "name": "Real MediaRecorder stop/playback/delete, track cleanup and audio overlap prevention (synthetic stream)",
+      "result": "PASS"
+    },
+    {
+      "name": "Missing voice guidance, letter-name labeling and stop on navigation (speech adapter mocked)",
+      "result": "PASS"
+    },
+    {
+      "name": "Notebook searches by word and shows real saved vocabulary",
+      "result": "PASS"
+    },
+    {
+      "name": "Export/import round trip is idempotent; invalid backup rejected",
+      "result": "PASS"
+    },
+    {
+      "name": "Exported JSON file downloads locally and imports through the file picker",
+      "result": "PASS"
+    },
+    {
+      "name": "Two real tabs preserve both writes and overlapping active intervals count once",
+      "result": "PASS"
+    },
+    {
+      "name": "Legacy course and history remain accessible and separate",
+      "result": "PASS"
+    },
+    {
+      "name": "Login preserves guest separately; explicit merge transfers both versions without duplicates",
+      "result": "PASS"
+    },
+    {
+      "name": "Offline changes remain pending and retry only reports success after server acknowledgement",
+      "result": "PASS"
+    },
+    {
+      "name": "Expired session retains pending data; switching account isolates history; re-login drains own queue",
+      "result": "PASS"
+    },
+    {
+      "name": "No horizontal overflow at 360, 390, 768, 1280 and 1440 across seven screens and alphabet lesson",
+      "result": "PASS"
+    },
+    {
+      "name": "Theme persists after reload; desktop/mobile screenshots captured",
+      "result": "PASS"
+    },
+    {
+      "name": "Admin list, secure bootstrap and legacy draft/preview/publish still function",
+      "result": "PASS"
+    },
+    {
+      "name": "Last published legacy content remains available offline without reverting question meaning",
+      "result": "PASS"
+    },
+    {
+      "name": "Compatibility rollback mode preserves Foundation events and restores the new course when removed",
+      "result": "PASS"
+    },
+    {
+      "name": "Keyboard focus is visible and reduced-motion preference disables transitions",
+      "result": "PASS"
+    },
+    {
+      "name": "No unhandled browser JavaScript exceptions",
+      "result": "PASS"
+    }
+  ],
+  "errors": [],
+  "screenshots": "artifacts/screenshots"
+}

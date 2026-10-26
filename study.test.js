@@ -52,7 +52,7 @@ test('reviews follow 1,3,7,14 days and reset for forgotten items', () => {
 test('timezone and active time account for date boundaries and concurrent tabs', () => {
   assert.equal(E.dateKey(Date.UTC(2026, 0, 1, 18)), '2026-01-02');
   const times = [0, 1, 2].map(i => make('time', { day: 1, seconds: 30 }, at + i * 1000));
-  assert.equal(E.state(times, C.lessons).seconds, 60);
+  assert.equal(E.state(times, C.lessons).seconds, 32, '30-second intervals ending a second apart have a 32-second union');
 });
 test('invalid events and malformed content cannot insert arbitrary question keys', () => {
   assert.throws(() => make('answer', { question: '__proto__', run: randomUUID(), answer: 'true' }));

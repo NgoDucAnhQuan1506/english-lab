@@ -1,5 +1,7 @@
 # Báo cáo nội dung 30 ngày
 
+> Lưu trữ khóa cũ để đối chiếu lịch sử. Khóa hiện tại là Foundation v2, 42 bài; xem CONTENT-AUDIT.md và CONTENT-MAP.md. Các phần bên dưới mô tả phiên bản trước nâng cấp.
+
 Đã tích hợp đủ ngày 1–30, không có bài khung hoặc bài chờ biên soạn. Mỗi ngày có mục tiêu, ôn ngày trước (trừ ngày 1), ba đoạn giảng tiếng Việt, ví dụ Anh–Việt, 5–6 mục từ/cụm có IPA, 2–3 đoạn nghe–nói có văn bản đối chiếu, 8 câu luyện với lời giải, 3 câu kiểm tra, tổng kết và nhiệm vụ ôn. Từ cũ được tái sử dụng; các ngày ôn không ép thêm từ mới.
 
 Nội dung tự biên soạn cho người Việt bắt đầu từ số 0. Mục tiêu là nền tảng và thói quen, không chứng nhận CEFR và không hứa thành thạo trong 30 ngày.

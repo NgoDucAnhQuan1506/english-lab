@@ -1,10 +1,11 @@
 <!doctype html>
-<html lang="vi">
+<html lang="vi" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#080c14">
-  <title>English Lab | 30 ngày nền tảng</title>
+  <meta name="theme-color" content="#f5f6f0">
+  <meta name="description" content="Tiếng Anh từ bảng chữ cái cho người Việt trưởng thành. 42 bài, hướng dẫn tiếng Việt, luyện tập và ôn theo tiến độ thật.">
+  <title>English Lab | Nền tảng từ A–Z</title>
   <link rel="stylesheet" href="/style.css">
   <link rel="stylesheet" href="/course.css">
 </head>
@@ -15,7 +16,7 @@
         <div class="brand-mark">A<span>+</span></div>
         <div><strong>English Lab</strong><small>Học từng chút, nhớ thật lâu</small></div>
       </div>
-      <div class="course-label">15–20 PHÚT MỖI NGÀY</div>
+      <div class="course-label">NỀN TẢNG · 42 BÀI / 7 CHẶNG</div>
       <nav class="lesson-nav" aria-label="Các bài học">
         <button class="lesson active" data-screen="today">◉ Hôm nay</button>
         <button class="lesson" data-screen="roadmap">▦ Lộ trình</button>
@@ -24,7 +25,7 @@
         <button class="lesson" data-screen="progress">▥ Tiến độ</button>
         <button class="lesson" data-screen="account">◎ Tài khoản</button>
       </nav>
-      <div class="side-note"><span class="spark">✦</span><b>Mẹo nhỏ</b><p>Đọc to mỗi chữ cái 2 lần để tạo phản xạ tự nhiên.</p></div>
+      <div class="side-note"><span class="spark">✦</span><b>Học vừa sức, nhớ lâu hơn.</b><p>Thử nhớ lại trước khi xem đáp án. Một bài có thể học qua nhiều buổi.</p></div>
       <div class="profile"><div class="avatar" id="profileAvatar">TA</div><div><b id="profileName">Khách</b><small id="profileHint">Đăng nhập để lưu tiến độ</small></div></div>
     </aside>
 
@@ -34,14 +35,14 @@
         <div class="account-actions"><span id="accountName">Học thử</span><button id="loginButton" class="primary-button">Đăng nhập / Đăng ký</button><button id="logoutButton" class="secondary-button" hidden>Đăng xuất</button></div>
       </div>
       <p id="saveStatus" class="save-status" role="status">Đăng nhập để lưu và theo dõi tiến độ học.</p>
-      <section id="courseRoot" aria-label="Khóa học 30 ngày"><p role="status">Đang mở góc học tập…</p></section>
+      <section id="courseRoot" aria-label="Khóa học nền tảng 42 bài"><p role="status">Đang mở góc học tập…</p></section>
       <section id="adminView" class="dashboard" hidden aria-labelledby="adminTitle">
         <span class="eyebrow">ENGLISH LAB · ADMIN</span><h1 id="adminTitle">Quản lý người học</h1><p>Theo dõi tiến độ và quản lý trạng thái tài khoản.</p>
         <div class="stats-grid">
           <div class="stat-card"><span>Tổng tài khoản</span><strong id="adminTotal">—</strong></div>
           <div class="stat-card"><span>Quản trị viên</span><strong id="adminCount">—</strong></div>
           <div class="stat-card"><span>Tài khoản bị khóa</span><strong id="adminDisabled">—</strong></div>
-          <div class="stat-card"><span>Hoàn thành 30 ngày</span><strong id="adminCompleted">—</strong></div>
+          <div class="stat-card"><span>Đạt 42 bài mới</span><strong id="adminCompleted">—</strong></div>
         </div>
         <div class="dashboard-card">
           <form id="adminSearch" class="admin-search">
@@ -97,7 +98,7 @@
 
       <section class="alphabet-section"><div class="section-title"><div><span class="eyebrow">TỔNG QUAN</span><h2>26 chữ cái</h2></div><span class="mini-hint">Chọn một chữ để bắt đầu học</span></div><div class="alphabet-grid" id="alphabetGrid"></div></section>
       </div>
-      <footer><span>English Lab</span><span>Học vui mỗi ngày · <b>01</b></span></footer>
+      <footer><span>English Lab</span><span>Học chắc từng bước.</span></footer>
     </main>
   </div>
   <dialog id="authDialog" aria-labelledby="authTitle">
@@ -113,8 +114,11 @@
     </form>
   </dialog>
   <script src="/curriculum.js"></script>
+  <script src="/foundation.js"></script>
   <script src="/study-engine.js"></script>
+  <script src="/audio.js"></script>
+  <script src="/recorder.js"></script>
   <script src="/app.js"></script>
-  <script src="/course-ui.js"></script>
+  <script src="/foundation-ui.js"></script>
 </body>
 </html>

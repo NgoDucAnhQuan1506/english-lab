@@ -87,6 +87,7 @@ async function record(action, details) {
   } finally { setBusy(false); }
 }
 const speak = text => {
+  if (window.AudioLab) { void AudioLab.play(text); return; }
   if (window.CourseUI) return window.CourseUI.audio(text);
   if (!('speechSynthesis' in window)) return;
   window.speechSynthesis.cancel();
@@ -291,7 +292,7 @@ function renderAdminUsers() {
     const identity = cell(user.name);
     const email = document.createElement('small'); email.textContent = user.email; identity.append(email);
     cell(user.role === 'admin' ? 'Admin' : 'Người học');
-    cell(`${user.studySummary?.completed || 0}/30 ngày`);
+    cell(`${user.studySummary?.completed || 0}/42 bài`);
     cell(user.studySummary?.attempts ? `${Math.round(user.studySummary.correct / user.studySummary.attempts * 100)}%` : 'Chưa luyện tập');
     const status = cell(user.disabled ? 'Đã khóa' : 'Hoạt động'); status.className = user.disabled ? 'account-disabled' : 'account-active';
     const actions = cell(''); actions.className = 'admin-row-actions';
@@ -311,7 +312,7 @@ function renderAdminDetail(user) {
   $('adminDetailName').textContent = user.name;
   $('adminDetailEmail').textContent = `${user.email} · ${user.role === 'admin' ? 'Admin' : 'Người học'} · ${user.disabled ? 'Đã khóa' : 'Hoạt động'}`;
   $('adminDetailSummary').textContent = `${p.learned.length}/26 chữ đã học · Đang học chữ ${letters[p.currentIndex].letter} · ${p.correct}/${p.attempts} lượt trả lời đúng · ${p.days.length} ngày học`;
-  if (user.studySummary) $('adminDetailSummary').textContent = `${user.studySummary.completed}/30 ngày đạt · ${user.studySummary.correct}/${user.studySummary.attempts} câu đúng · ${user.studySummary.days} ngày học · ${Math.floor(user.studySummary.seconds / 60)} phút hoạt động`;
+  if (user.studySummary) $('adminDetailSummary').textContent = `${user.studySummary.completed}/42 bài đạt · ${user.studySummary.correct}/${user.studySummary.attempts} câu đúng · ${user.studySummary.days} ngày học · ${Math.floor(user.studySummary.seconds / 60)} phút hoạt động`;
   const letterList = indices => [...indices].sort((a, b) => a - b).map(index => letters[index].letter).join(', ') || 'Chưa có';
   $('adminDetailLearned').textContent = letterList(p.learned);
   $('adminDetailFavorites').textContent = letterList(p.favorites);

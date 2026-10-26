@@ -5,6 +5,7 @@ const crypto = require('node:crypto');
 const { promisify } = require('node:util');
 const { store, db, ready } = require('./database');
 const Curriculum = require('./public/curriculum');
+const Foundation = require('./public/foundation');
 const Engine = require('./public/study-engine');
 const scrypt = promisify(crypto.scrypt);
 const initialProgress = () => ({ currentIndex: 0, learned: [], favorites: [], attempts: 0, correct: 0, days: [], viewed: [], letterScores: {}, answerIds: [] });
@@ -53,7 +54,12 @@ const server = http.createServer(async (req, res) => {
         if (req.headers.origin && new URL(req.headers.origin).host !== req.headers.host) reject('Yêu cầu không hợp lệ.', 403);
         if (!req.headers['content-type']?.startsWith('application/json')) reject('Cần dữ liệu JSON.', 415);
       }
-      if (url.pathname === '/api/course' && req.method === 'GET') return json(200, { lessons: await course(), storage: store.persistent ? 'configured' : 'local-only' });
+      if (url.pathname === '/api/settings' && req.method === 'GET') return json(200,{courseEdition:process.env.COURSE_EDITION==='legacy-v1'?'legacy-v1':Foundation.version});
+      if (url.pathname === '/api/course' && req.method === 'GET') {
+        const version=url.searchParams.get('version') || 'legacy-v1';
+        if (!['legacy-v1',Foundation.version].includes(version)) reject('Không có phiên bản khóa học này.',404);
+        return json(200, { version, lessons:version===Foundation.version?Foundation.lessons:await course(), storage: store.persistent ? 'configured' : 'local-only' });
+      }
       if (['/api/register', '/api/login'].includes(url.pathname) && req.method === 'POST') {
         canPersist(); rateLimit(req);
         const input = await body(req);
@@ -105,7 +111,7 @@ const server = http.createServer(async (req, res) => {
       if (url.pathname === '/api/study' && req.method === 'POST') {
         const input = await body(req);
         if (!Array.isArray(input.events) || input.events.length > 1000) reject('Mỗi lần lưu tối đa 1000 hoạt động.');
-        const lessons = await course();
+        const lessons = [...await course(),...Foundation.lessons];
         let events;
         try { events = input.events.map(e => Engine.event(e, lessons)); } catch (error) { reject(error.message); }
         const merged = await store.transaction(async () => {
@@ -124,9 +130,9 @@ const server = http.createServer(async (req, res) => {
           if (q.length > 100 || !['all', 'active', 'disabled'].includes(status) || !Number.isSafeInteger(page) || page < 1 || page > 1000000) reject('Bộ lọc không hợp lệ.');
           const all = await store.all('SELECT * FROM users');
           const found = all.filter(row => (row.name.toLowerCase().includes(q) || row.email.includes(q)) && (status === 'all' || !!row.disabled === (status === 'disabled'))).sort((a, b) => a.name.localeCompare(b.name) || a.id.localeCompare(b.id));
-          const lessons = await course();
+          const lessons = Foundation.lessons;
           const mapped = found.slice((page - 1) * 20, page * 20).map(row => ({ ...expose(row), studySummary: summarize(row, lessons) }));
-          return json(200, { users: mapped, total: found.length, page, pageSize: 20, stats: { total: all.length, admins: all.filter(u => u.role === 'admin').length, disabled: all.filter(u => u.disabled).length, completed: all.filter(u => Engine.state(JSON.parse(u.study).events, lessons).completed.length === 30).length } });
+          return json(200, { users: mapped, total: found.length, page, pageSize: 20, stats: { total: all.length, admins: all.filter(u => u.role === 'admin').length, disabled: all.filter(u => u.disabled).length, completed: all.filter(u => Engine.state(JSON.parse(u.study).events, lessons).completed.length === lessons.length).length } });
         }
         const contentMatch = /^\/api\/admin\/lessons\/(\d+)$/.exec(url.pathname);
         if (contentMatch) {
@@ -137,6 +143,12 @@ const server = http.createServer(async (req, res) => {
           const actor = await sessionUser(req); if (actor?.role !== 'admin') reject('Bạn không có quyền quản trị.', 403);
           let errors; try { errors = Curriculum.validate(input.lesson); } catch { reject('Cấu trúc bài học không hợp lệ.'); }
           if (input.lesson?.day !== day) errors.push('Ngày trong nội dung không khớp.');
+          // The archived edition has no destructive content migration. Editing explanations
+          // or headings is safe; changing a question's meaning needs a new edition/ID.
+          const previous=JSON.parse(existing?.published || JSON.stringify(Curriculum.lessons[day-1]));
+          const semantics=q=>JSON.stringify([q.id,q.type,q.prompt,q.answers,q.options,q.audio,q.caseSensitive,q.skill,q.word]);
+          if (['practice','test'].some(section=>JSON.stringify((previous[section]||[]).map(semantics))!==JSON.stringify((input.lesson?.[section]||[]).map(semantics)))) errors.push('Khóa cũ đã lưu lịch sử: không thay câu hỏi/đáp án hoặc ID đã dùng. Tạo phiên bản mới trong mã nguồn.');
+          if (JSON.stringify(previous.vocab.map(v=>[v.id,v.term,v.meaning]))!==JSON.stringify((input.lesson?.vocab||[]).map(v=>[v.id,v.term,v.meaning]))) errors.push('Không đổi ý nghĩa ID từ trong khóa cũ.');
           if (!['draft', 'publish'].includes(input.action)) errors.push('Chọn lưu nháp hoặc xuất bản.');
           if (errors.length) return json(400, { error: errors.join(' '), errors });
           await store.transaction(async () => {
@@ -149,7 +161,7 @@ const server = http.createServer(async (req, res) => {
         const match = /^\/api\/admin\/users\/([a-f0-9-]+)(\/status)?$/.exec(url.pathname);
         if (match && !match[2] && req.method === 'GET') {
           const target = await store.get('SELECT * FROM users WHERE id = ?', match[1]); if (!target) reject('Không tìm thấy người dùng.', 404);
-          return json(200, { user: { ...expose(target), studySummary: summarize(target, await course()) } });
+          return json(200, { user: { ...expose(target), studySummary: summarize(target, Foundation.lessons) } });
         }
         if (match?.[2] && req.method === 'POST') {
           const input = await body(req); if (typeof input.disabled !== 'boolean') reject('Trạng thái không hợp lệ.');
