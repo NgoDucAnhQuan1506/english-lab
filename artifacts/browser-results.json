@@ -1,5 +1,5 @@
 {
-  "at": "2026-10-26T00:05:06.803Z",
+  "at": "2026-10-26T08:39:15.797Z",
   "browser": "C:/Program Files/Google/Chrome/Application/chrome.exe",
   "results": [
     {
@@ -67,6 +67,62 @@
       "result": "PASS"
     },
     {
+      "name": "All 42 personal tasks and seven capstones render; listening warm-up has playable controls",
+      "result": "PASS"
+    },
+    {
+      "name": "Application uses another authored form after support, preserves its form across F5 and keeps old scores separate",
+      "result": "PASS"
+    },
+    {
+      "name": "All A–F letters have hearing and matching practice; F5 and Today resume the unfinished method draft",
+      "result": "PASS"
+    },
+    {
+      "name": "Same-day return check remains locked; early practice cannot claim delayed recall",
+      "result": "PASS"
+    },
+    {
+      "name": "Personal-task confirmation requires a draft and rubric but never becomes objective delayed evidence",
+      "result": "PASS"
+    },
+    {
+      "name": "Historical-date fixtures select due recall on Today and complete the eligible later occasion",
+      "result": "PASS"
+    },
+    {
+      "name": "New teaching, application and delayed evidence screens fit mobile and desktop",
+      "result": "PASS"
+    },
+    {
+      "name": "All fourteen authored scenarios open with models hidden and actionable steps",
+      "result": "PASS"
+    },
+    {
+      "name": "Studio requires an actual note and comparison; F5 preserves private draft and hidden model",
+      "result": "PASS"
+    },
+    {
+      "name": "Full scenario honors the 10-minute three-step budget, keeps support separate and never passes a lesson",
+      "result": "PASS"
+    },
+    {
+      "name": "Studio export/import deduplicates status and keeps private notes; alternate scenario changes data",
+      "result": "PASS"
+    },
+    {
+      "name": "Starting a new scenario run keeps accessible previous self-review history and separate notes",
+      "result": "PASS"
+    },
+    {
+      "name": "Review explains its choice, persists the exact queue across F5 and does not resubmit an answered item",
+      "result": "PASS"
+    },
+    {
+      "name": "Studio task and navigation fit 360, 390, 768, 1280 and 1440 pixels",
+      "result": "PASS"
+    },
+    {
       "name": "Login preserves guest separately; explicit merge transfers both versions without duplicates",
       "result": "PASS"
     },
@@ -75,7 +131,15 @@
       "result": "PASS"
     },
     {
+      "name": "Offline studio keeps pending status and retries online without uploading private response text",
+      "result": "PASS"
+    },
+    {
       "name": "Expired session retains pending data; switching account isolates history; re-login drains own queue",
+      "result": "PASS"
+    },
+    {
+      "name": "Switching accounts isolates studio drafts and restores the correct owner’s note",
       "result": "PASS"
     },
     {

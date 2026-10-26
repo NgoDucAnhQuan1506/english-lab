@@ -323,5 +323,5 @@
     for (const word of lesson.vocab || []) if (![word.term,word.ipa,word.meaning,word.example,word.translation].every(v=>typeof v==='string'&&v.trim())) errors.push('Mục từ chưa đầy đủ.');
     return errors;
   }
-  return { version, stages, alphabet, lessons, validate };
+  return { version, stages, alphabet, lessons, validate, acceptedVariants };
 });

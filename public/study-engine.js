@@ -5,19 +5,26 @@
   'use strict';
   const intervals = [1, 3, 7, 14];
   const normalize = value => String(value).normalize('NFKC').toLowerCase().replace(/[’‘]/g, "'").replace(/[.,!?;:]/g, '').replace(/\s+/g, ' ').trim();
-  const grade = (question, answer) => question.answers.some(expected => question.caseSensitive ? String(expected).trim() === String(answer).trim() : normalize(expected) === normalize(answer));
+  const grade = (question, answer) => {
+    if(question.format==='clock'){
+      const input=/^(\d{1,2}):([0-5]\d)$/.exec(String(answer).trim());if(!input||+input[1]>23)return false;
+      return question.answers.some(expected=>{const target=/^(\d{1,2}):([0-5]\d)$/.exec(expected);return target&&+input[1]===+target[1]&&input[2]===target[2];});
+    }
+    return question.answers.some(expected => question.caseSensitive ? String(expected).trim() === String(answer).trim() : normalize(expected) === normalize(answer));
+  };
   const dateKey = (at, timezone = 'Asia/Ho_Chi_Minh') => new Intl.DateTimeFormat('en-CA', { timeZone: timezone }).format(new Date(at));
   function index(course) {
-    const questions = Object.create(null), words = Object.create(null);
+    const questions = Object.create(null), words = Object.create(null), scenarios=Object.create(null);
     for (const lesson of course) {
-      for (const section of ['practice', 'test']) for (const q of lesson[section]) questions[q.id] = { ...q, day: lesson.day, course:lesson.course || 'legacy-v1', section };
+      for (const section of ['practice', 'test','transfer','retention']) for (const q of lesson[section]||[]) questions[q.id] = { ...q, day: lesson.day, course:lesson.course || 'legacy-v1', section };
       for (const word of lesson.vocab) words[word.id] = { ...word, day: lesson.day, course:lesson.course || 'legacy-v1' };
+      for(const scene of lesson.scenarios||[])scenarios[scene.id]={...scene,course:lesson.course||'legacy-v1'};
     }
-    return { questions, words };
+    return { questions, words, scenarios };
   }
   function event(input, course, now = Date.now()) {
     if (!input || typeof input !== 'object' || !/^[a-f0-9-]{36}$/i.test(input.id || '') || !Number.isFinite(input.at) || input.at < 0 || input.at > now + 300000) throw new Error('Mã hoặc thời điểm hoạt động không hợp lệ.');
-    const { questions, words } = index(course);
+    const { questions, words, scenarios } = index(course);
     const e = { id: input.id, at: input.at, type: input.type };
     const scope = input.course || questions[input.question]?.course || words[input.item]?.course || questions[input.item]?.course || 'legacy-v1';
     const scoped = course.filter(l => (l.course || 'legacy-v1') === scope);
@@ -29,10 +36,11 @@
       Object.assign(e, { question: q.id, run: input.run, answer: input.answer, correct: grade(q, input.answer), day: q.day, section: q.section, skill: q.skill });
       if (q.word) e.item = q.word;
       if (input.assisted) e.assisted = true;
-      if (input.context !== undefined && !['lesson','review'].includes(input.context)) throw new Error('Ngữ cảnh trả lời không hợp lệ.');
+      if (input.context !== undefined && !['lesson','review','checkup'].includes(input.context)) throw new Error('Ngữ cảnh trả lời không hợp lệ.');
       if (input.context === 'review') e.context = 'review';
+      if (['transfer','retention'].includes(q.section)) e.context=input.context==='review'?'review':'checkup';
     } else if (input.type === 'view') {
-      if (!scoped.some(l => l.day === input.day) || !['intro', 'vocab', 'listen', 'practice', 'test', 'summary'].includes(input.step)) throw new Error('Vị trí học không hợp lệ.');
+      if (!scoped.some(l => l.day === input.day) || !['intro', 'vocab', 'listen', 'practice', 'test', 'summary','transfer','retention'].includes(input.step)) throw new Error('Vị trí học không hợp lệ.');
       Object.assign(e, { day: input.day, step: input.step });
     } else if (input.type === 'favorite' || input.type === 'rating') {
       if ((!words[input.item] && !questions[input.item]) || (words[input.item] || questions[input.item]).course !== scope) throw new Error('Nội dung ôn không hợp lệ.');
@@ -42,9 +50,14 @@
     } else if (input.type === 'time') {
       if (!Number.isInteger(input.seconds) || input.seconds < 1 || input.seconds > 60 || !scoped.some(l => l.day === input.day)) throw new Error('Thời gian học không hợp lệ.');
       Object.assign(e, { seconds: input.seconds, day: input.day });
+    } else if(input.type==='studio'){
+      const scene=scenarios[input.scene];
+      if(!scene||scene.course!==scope||!scene.turns.some(t=>t.id===input.turn)||!/^[a-f0-9-]{36}$/i.test(input.run||'')||!['checked','retry'].includes(input.value)||(input.assisted!==undefined&&typeof input.assisted!=='boolean'))throw new Error('Bước vận dụng không hợp lệ.');
+      Object.assign(e,{scene:scene.id,turn:input.turn,run:input.run,value:input.value,day:scene.day,assisted:!!input.assisted});
     } else if (input.type === 'reflection') {
       if (!scoped.some(l=>l.day===input.day) || !['checked','retry'].includes(input.value)) throw new Error('Tự đối chiếu không hợp lệ.');
       Object.assign(e,{day:input.day,value:input.value});
+      if(input.rubric==='method1')e.rubric='method1';
     } else throw new Error('Loại hoạt động không hợp lệ.');
     return e;
   }
@@ -57,7 +70,7 @@
   function state(events = [], course, timezone = 'Asia/Ho_Chi_Minh') {
     const lookup = index(course);
     const dict = () => Object.create(null);
-    const result = { resume: { day: 1, step: 'intro' }, favorites: dict(), reviews: dict(), runs: dict(), skills: dict(), daily: dict(), completed: [], finished:[], started:[], reflections:dict(), mistakes: dict(), seen: [], seconds: 0, attempts: 0, correct: 0, assisted:0, lastAnswer:0 };
+    const result = { resume: { day: 1, step: 'intro' }, favorites: dict(), reviews: dict(), runs: dict(), checkups:dict(), studioRuns:dict(), repairs:dict(), passedAt:dict(), skills: dict(), daily: dict(), completed: [], finished:[], started:[], reflections:dict(), methodReflections:dict(), mistakes: dict(), seen: [], seconds: 0, attempts: 0, correct: 0, assisted:0, lastAnswer:0 };
     const answered = new Set();
     let timeEnd = 0;
     function schedule(item, value, at) {
@@ -73,6 +86,11 @@
       if (e.type === 'view') { result.resume = { day: e.day, step: e.step }; if (!result.seen.includes(e.day)) result.seen.push(e.day); }
       if (e.type==='view' && e.step!=='intro' && !result.started.includes(e.day)) result.started.push(e.day);
       if (e.type==='reflection') result.reflections[e.day]=e.value;
+      if (e.type==='reflection'&&e.rubric==='method1')result.methodReflections[e.day]=e.value;
+      if(e.type==='studio'&&lookup.scenarios[e.scene]?.turns.some(t=>t.id===e.turn)){
+        result.studioRuns[e.run]||={scene:e.scene,day:e.day,turns:dict()};
+        if(result.studioRuns[e.run].scene===e.scene)result.studioRuns[e.run].turns[e.turn]=e;
+      }
       if (e.type === 'favorite') { result.favorites[e.item] = e.value; if(e.value && !result.reviews[e.item])schedule(e.item,'again',e.at); }
       if (e.type === 'rating') schedule(e.item, e.value, e.at);
       if (e.type === 'time') {
@@ -89,6 +107,7 @@
       if (answered.has(key)) continue;
       answered.add(key);
       const q = lookup.questions[e.question];
+      if(['transfer','retention'].includes(q.section)&&(!e.correct||e.assisted)){result.repairs[q.id]||=[];result.repairs[q.id].push(e.at);}
       if (!result.started.includes(e.day)) result.started.push(e.day);
       result.lastAnswer = Math.max(result.lastAnswer,e.at);
       result.attempts++; if (e.correct) result.correct++;
@@ -96,7 +115,10 @@
       result.skills[e.skill] ||= { correct: 0, total: 0, assisted:0, uniqueQuestions:[] };
       if (e.assisted) { result.assisted++; result.skills[e.skill].assisted++; }
       else { result.skills[e.skill].total++; if(e.correct) result.skills[e.skill].correct++; if(!result.skills[e.skill].uniqueQuestions.includes(q.id))result.skills[e.skill].uniqueQuestions.push(q.id); }
-      if (e.context !== 'review') {
+      if (['transfer','retention'].includes(q.section) && e.context==='checkup') {
+        result.checkups[e.run]||={day:q.day,at:e.at,answers:dict()};
+        if(result.checkups[e.run].day===q.day)result.checkups[e.run].answers[q.id]=e;
+      } else if (!['transfer','retention'].includes(q.section) && e.context !== 'review') {
         result.runs[e.run] ||= { day: e.day, at: e.at, answers: dict() };
         if (result.runs[e.run].day === e.day) result.runs[e.run].answers[q.id] = e;
       }
@@ -107,8 +129,8 @@
     for (const lesson of course) {
       const full = Object.values(result.runs).filter(run => run.day === lesson.day && lesson.practice.every(q => run.answers[q.id]) && lesson.test.every(q => run.answers[q.id]));
       if(full.length) result.finished.push(lesson.day);
-      const passed = full.some(run => lesson.practice.filter(q => run.answers[q.id]?.correct && !run.answers[q.id].assisted).length >= Math.ceil(lesson.practice.length * .75) && lesson.test.filter(q => run.answers[q.id]?.correct && !run.answers[q.id].assisted).length >= Math.ceil(lesson.test.length * 2 / 3));
-      if (passed) result.completed.push(lesson.day);
+      const passing = full.filter(run => lesson.practice.filter(q => run.answers[q.id]?.correct && !run.answers[q.id].assisted).length >= Math.ceil(lesson.practice.length * .75) && lesson.test.filter(q => run.answers[q.id]?.correct && !run.answers[q.id].assisted).length >= Math.ceil(lesson.test.length * 2 / 3));
+      if (passing.length) { result.completed.push(lesson.day); result.passedAt[lesson.day]=Math.min(...passing.map(run=>Math.max(...Object.values(run.answers).map(a=>a.at)))); }
     }
     return result;
   }

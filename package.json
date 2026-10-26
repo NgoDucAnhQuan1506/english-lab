@@ -8,11 +8,11 @@
   },
   "scripts": {
     "start": "node server.js",
-    "test": "node --test server.test.js study.test.js foundation.test.js",
+    "test": "node --test server.test.js study.test.js foundation.test.js method.test.js studio.test.js",
     "test:browser": "node browser-foundation.cjs",
     "audit:content": "node audit-content.cjs",
     "check:secrets": "node security-check.cjs",
-    "check": "node --check server.js && node --check database.js && node --check public/app.js && node --check public/course-ui.js && node --check public/curriculum.js && node --check public/foundation.js && node --check public/study-engine.js && node --check public/foundation-ui.js && node --check public/audio.js && node --check public/recorder.js && node --check public/sw.js"
+    "check": "node --check server.js && node --check database.js && node --check public/app.js && node --check public/course-ui.js && node --check public/curriculum.js && node --check public/foundation.js && node --check public/course-method.js && node --check public/study-engine.js && node --check public/foundation-ui.js && node --check public/audio.js && node --check public/recorder.js && node --check public/sw.js && node --check public/scenarios.js && node --check public/review-coach.js"
   },
   "dependencies": {
     "pg": "^8.23.1"

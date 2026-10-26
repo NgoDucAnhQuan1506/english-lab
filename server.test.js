@@ -191,6 +191,16 @@ test('account sessions, isolated persistent progress and validation', async t =>
   assert.equal((await call('study',{events:[makeEvent('view',{course:F.version,day:43,step:'intro'})]},bootstrap.cookie)).status,400);
   assert.equal((await call('study',{events:[makeEvent('answer',{course:'legacy-v1',question:fQuestion.id,run:fRun,answer:fQuestion.answers[0]})]},bootstrap.cookie)).status,400);
   assert.equal(Engine.state(fRepeated.body.events,F.lessons).assisted,1);
+  const Method=require('./public/course-method'),methodProbe=Method.lessons[19].transfer[0];
+  const methodResponse=await call('study',{events:[makeEvent('answer',{course:F.version,question:methodProbe.id,run:randomUUID(),answer:'incorrect',correct:true,context:'lesson'})]},bootstrap.cookie);
+  assert.equal(methodResponse.status,200);const methodStored=methodResponse.body.events.find(e=>e.question===methodProbe.id);assert.equal(methodStored.correct,false);assert.equal(methodStored.context,'checkup');
+  assert.equal((await call('study',{events:[makeEvent('view',{course:F.version,day:20,step:'retention'})]},bootstrap.cookie)).status,200);
+  const clockProbe=Method.lessons[36].transfer.find(q=>q.format==='clock'),clockEvent=makeEvent('answer',{course:F.version,question:clockProbe.id,run:randomUUID(),answer:'83:0',correct:true});
+  const clockResponse=await call('study',{events:[clockEvent]},bootstrap.cookie);assert.equal(clockResponse.body.events.find(e=>e.id===clockEvent.id).correct,false);
+  const scene=require('./public/scenarios').scenes[0],studioEvent=makeEvent('studio',{course:F.version,scene:scene.id,turn:scene.turns[0].id,run:randomUUID(),value:'checked',answer:'Private text',correct:true});
+  const studioResponse=await call('study',{events:[studioEvent]},bootstrap.cookie);assert.equal(studioResponse.status,200);const savedStudio=studioResponse.body.events.find(e=>e.id===studioEvent.id);assert.equal(savedStudio.value,'checked');assert(!('answer'in savedStudio));assert(!('correct'in savedStudio));
+  assert.equal((await call('study',{events:[{...studioEvent,id:randomUUID(),turn:'__proto__'}]},bootstrap.cookie)).status,400);
+  assert.equal((await call('study',{events:[{...studioEvent,id:randomUUID(),course:'legacy-v1'}]},bootstrap.cookie)).status,400);assert.equal(savedStudio.day,6);
   const changedQuestion=structuredClone(draft);changedQuestion.practice[0].prompt='A different meaning';
   assert.equal((await call(lessonRoute,{action:'publish',lesson:changedQuestion,version:2},admin.cookie)).status,400,'legacy question semantics cannot be reused');
   db.prepare('UPDATE sessions SET expires = 0 WHERE user_id = ?').run(stored.id);

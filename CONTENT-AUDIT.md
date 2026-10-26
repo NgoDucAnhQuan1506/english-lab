@@ -73,3 +73,19 @@ IPA dùng cách ghi rộng theo hướng Mỹ: /ɛ/, /ɑr/, /ɜr/; có thể kh�
 4. Theo dõi người học sau 1/3/7 ngày để thẩm định lịch ôn và phương án nhiễu. Lịch hiện là quy tắc minh bạch, không mô hình đo trí nhớ đã hiệu chuẩn.
 5. Câu mở, phần nói, lời nhắn cá nhân dùng checklist và tự đối chiếu; không có điểm phát âm hoặc kết luận nói/viết đúng hoàn toàn.
 6. Kiểm tra mẫu cuối bài không bao phủ hết mọi chữ/từ; đạt bài chỉ chứng minh đã đạt nhóm câu đó. Tiến độ không tuyên bố thông thạo toàn bộ A–Z hoặc kỹ năng tổng quát.
+
+## Bổ sung method1 — 26/10/2026
+
+Đã biên tập bổ sung và đọc từng bộ cho đủ 42 bài: đích hành động, trọng tâm, lỗi/cách sửa/lý do, nhiệm vụ riêng, mẫu và tiêu chí tự đối chiếu; bảy nhiệm vụ tổng hợp chặng. Giữ nguyên ID/ý nghĩa câu cũ. Bài 1–4 thêm nghe–viết và hoa–thường phủ từng chữ; bài 5–42 có ba nhóm hai câu để đổi dữ kiện khi thử lại. Các mốc sau nghỉ có lấy mẫu và không được gộp thành kết luận nghe/nói thành thạo.
+
+[COURSE-METHOD-REPORT.md](COURSE-METHOD-REPORT.md) ghi quyết định rà theo bài, cách tính bằng chứng và cơ sở thiết kế. [METHOD-CONTENT-MAP.md](METHOD-CONTENT-MAP.md) ghi toàn bộ câu/đáp án/nguồn mới. Đã sửa chấm giờ bỏ dấu hai chấm, chấp nhận dạng gọn đúng phạm vi (gồm don’t understand ở bài 29), sửa khởi động nghe thiếu nút phát và hội thoại gắn vai không đúng bản chất. Audit tự động không tìm token đáp án chưa dạy; đây là heuristic, không thay thẩm định ngôn ngữ.
+
+Tiếp tục cần giáo viên nghe và quan sát người Việt trưởng thành thật. [TEACHER-PILOT.md](TEACHER-PILOT.md) có kịch bản, nhiệm vụ từng chặng và phiếu ghi qua nhiều ngày; chưa thực hiện với người ngoài. Không gọi tests thời gian giả lập là đã có bằng chứng nhớ sau 1/3/7 ngày.
+
+## Studio1 và ôn biến thể — 26/10/2026
+
+Đã biên soạn/rà 14 tình huống (hai mỗi chặng), 56 bước có mục đích, mẫu, lý do, tiêu chí và refs đã dạy. Bản từng bước ở STUDIO-CONTENT-MAP; quyết định theo chặng ở BIG-UPDATE-REPORT. Chặng 1 chỉ làm việc với tên chữ/hoa–thường/đánh vần; chặng 2 dùng cả từ và tự kiểm tra âm cuối; chặng 3 dùng mẫu tuổi như cụm đã dạy, chưa ép thuật ngữ be; chặng 4 mới tách be; các chặng sau đổi thông tin và mục đích câu hỏi. Lời nhắn cuối không suy diễn sáng/tối nếu đề thiếu. Có thể dùng hồ sơ tưởng tượng.
+
+Mẫu là một cách hợp lệ để tự đối chiếu, không phải bộ chấm câu mở cứng. Chỉ các trường audio được biên soạn mới được phát, không đọc lời giải Việt/IPA như âm mẫu. Ghi âm cục bộ vẫn cần giáo viên nghe khi chưa chắc.
+
+Ôn chọn biến thể theo refs và bài nguồn, hạn chế nội dung trùng trong buổi; sau hai câu liên quan đúng độc lập quay lại câu gốc. Không kết luận đã hiểu khái niệm chỉ từ hai câu đó. Phản hồi lỗi giới hạn vào quy tắc nhận ra được; các câu khác giữ lời giải gốc, không đoán nguyên nhân ngoài dữ kiện. Engine/API/E2E xác minh hành vi phần mềm; chất lượng giảng dạy ngoài đời vẫn cần teacher/pilot.

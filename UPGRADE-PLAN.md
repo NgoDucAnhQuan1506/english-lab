@@ -1,5 +1,9 @@
 # English Lab — kế hoạch nâng cấp Foundation v2
 
+**Vòng tiếp theo 26/10/2026:** nâng chất lượng giảng dạy theo yêu cầu mới, giữ nền tảng đã hoàn thành bên dưới. [COURSE-QUALITY-PLAN.md](COURSE-QUALITY-PLAN.md) ghi phạm vi và kết quả method1: 42 bộ bổ sung, vận dụng/nhớ lại riêng, 29 tests và 33 nhóm E2E đạt local. [CHECKPOINT.md](CHECKPOINT.md) là trạng thái hiện tại; các mốc baseline/19 tests/26 nhóm ở phần dưới là lịch sử vòng trước.
+
+**Vòng studio1 sau yêu cầu “tiếp tục big update”:** [BIG-UPDATE-PLAN.md](BIG-UPDATE-PLAN.md) và [BIG-UPDATE-REPORT.md](BIG-UPDATE-REPORT.md): xưởng 14 tình huống/56 bước, nháp/nhật ký tự đối chiếu, ôn biến thể theo dữ liệu thật. Hiện 36 tests và 42 nhóm E2E đạt; không chấm câu mở/phát âm giả, không push/deploy. Checkpoint giữ bằng chứng mới nhất.
+
 ## Hiện trạng đã xác minh
 - Git đầu phiên: sạch, HEAD `c768424`. Không có AGENTS.md ở workspace/các thư mục cha đã kiểm tra.
 - Node thuần + SQLite/PostgreSQL, frontend JavaScript thuần. Khóa hiện tại 30 bài, chưa có Foundation v2.

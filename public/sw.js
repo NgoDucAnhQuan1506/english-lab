@@ -1,6 +1,6 @@
 /* Cache only public course assets. Account APIs and recordings never enter this cache. */
-const CACHE='englishlab-public-foundation-v2-r2';
-const ASSETS=['/','/index.html','/style.css','/course.css','/curriculum.js','/foundation.js','/study-engine.js','/audio.js','/recorder.js','/app.js','/foundation-ui.js'];
+const CACHE='englishlab-public-foundation-v2-studio1';
+const ASSETS=['/','/index.html','/style.css','/course.css','/curriculum.js','/foundation.js','/scenarios.js','/course-method.js','/study-engine.js','/review-coach.js','/audio.js','/recorder.js','/app.js','/foundation-ui.js'];
 self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)).then(()=>self.skipWaiting()));});
 self.addEventListener('activate',event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key.startsWith('englishlab-public-')&&key!==CACHE).map(key=>caches.delete(key)))).then(()=>self.clients.claim()));});
 self.addEventListener('fetch',event=>{

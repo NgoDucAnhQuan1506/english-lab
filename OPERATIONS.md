@@ -75,6 +75,12 @@ Nếu database thật gặp lỗi, tạo bản phục hồi ở thư mục/datab
 
 Foundation có revision 1 và prefix f2. Chỉnh lỗi trình bày/lời giải không đổi nghĩa được giữ ID; thay ý nghĩa đề/đáp án cần ID/phiên bản mới và registry giữ nội dung cũ để chấm lịch sử. Không tăng prefix rồi xóa module cũ. Khóa 30 bài được giữ; API editor chặn thay nghĩa câu/đáp án/ID, cho sửa tiêu đề/lời giải/bài giảng/IPA mà không đổi nghĩa từ.
 
+Method1 là lớp bổ sung trong `public/course-method.js`, được tải sau foundation.js ở frontend và require ở server. Giữ nguyên 305 câu practice/test và khóa cũ; câu mới dùng `f2-method1-lN-xN` / `f2-method1-lN-rN-N`, vẫn thuộc foundation-v2. Server phải giữ module này khi đọc lịch sử mới. Reflection có `rubric: method1` chỉ là tự đối chiếu. Không cần migration schema hoặc dependency mới. CACHE hiện tại là `englishlab-public-foundation-v2-studio1`; khi phát hành tiếp phải đổi tên.
+
+Trước cập nhật method1: xuất JSON test và xác nhận một tài khoản cũ giữ điểm, nhóm vận dụng mới chưa tự đạt. Sau cập nhật: thử phần 7, F5 giữ nhóm/câu; mốc nhớ lại cùng ngày bị khóa; xem tiến độ tách bằng chứng. Nếu quay về build chỉ có Foundation v2 chưa hiểu ID method1, có nguy cơ bỏ sự kiện khi ghi lại. Ưu tiên chế độ tương thích trên build mới; lưu snapshot database + JSON trước mọi rollback và không cho build cũ ghi dữ liệu method1.
+
+Studio1 thêm `public/scenarios.js` (tải trước course-method) và `public/review-coach.js` (sau study-engine). API nhận event type studio, kiểm tra scene/turn/run/course/value và chỉ lưu trạng thái tự đối chiếu. Draft lời đáp ở trình duyệt, không nằm trong sự kiện đồng bộ. Không thay schema database. Sau phát hành thử Vận dụng → ghi nháp → F5 → mở mẫu/đối chiếu, nhật ký lượt, đổi tài khoản, ôn một biến thể và xác nhận lỗi gốc vẫn giữ. Backup JSON bao gồm drafts và lượt studio. Giữ module catalog khi đọc lịch sử; server build cũ chưa hiểu event studio không phù hợp để ghi tiến độ mới. Dùng COURSE_EDITION=legacy-v1 trên build mới để quay về giao diện khóa cũ an toàn.
+
 Để thêm bản thu, đăng ký `AudioLab.register('letter:A', {src:'/audio/letter-a.mp3', license:'nguon-va-quyen-su-dung'})` hoặc `word:...` / `phrase:...`. File phải tồn tại, cùng origin và có quyền rõ ràng. UI không cần đổi; nếu chưa có registry dùng giọng thiết bị. Không tải MP3 từ từ điển khi chưa được phép. Khóa cốt lõi không phụ thuộc dịch vụ trả phí.
 
 ## Phạm vi chưa xác minh

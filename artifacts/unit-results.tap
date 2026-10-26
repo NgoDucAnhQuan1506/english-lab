@@ -1,124 +1,48 @@
-TAP version 13
-# Subtest: 42 authored lessons follow the requested seven stages; every assessment has earlier teaching evidence
-ok 1 - 42 authored lessons follow the requested seven stages; every assessment has earlier teaching evidence
-  ---
-  duration_ms: 5.6547
-  type: 'test'
-  ...
-# Subtest: legacy and Foundation histories coexist without reusing meaning or completing each other
-ok 2 - legacy and Foundation histories coexist without reusing meaning or completing each other
-  ---
-  duration_ms: 13.5992
-  type: 'test'
-  ...
-# Subtest: opening support never counts as independent evidence; full attempt differs from passing
-ok 3 - opening support never counts as independent evidence; full attempt differs from passing
-  ---
-  duration_ms: 18.1114
-  type: 'test'
-  ...
-# Subtest: legal contractions, smart apostrophes, case-sensitive letters and defined variants grade correctly
-ok 4 - legal contractions, smart apostrophes, case-sensitive letters and defined variants grade correctly
-  ---
-  duration_ms: 0.3886
-  type: 'test'
-  ...
-# Subtest: 10/20/30 minutes change actual question, review and vocabulary budgets
-ok 5 - 10/20/30 minutes change actual question, review and vocabulary budgets
-  ---
-  duration_ms: 0.4339
-  type: 'test'
-  ...
-# Subtest: today recommends beginning, resuming, next lesson or a reasoned short review from real events
-ok 6 - today recommends beginning, resuming, next lesson or a reasoned short review from real events
-  ---
-  duration_ms: 7.8003
-  type: 'test'
-  ...
-# Subtest: review queue is finite, prioritizes wrong/due items and handles both question and word recalls
-ok 7 - review queue is finite, prioritizes wrong/due items and handles both question and word recalls
-  ---
-  duration_ms: 7.3496
-  type: 'test'
-  ...
-# Subtest: cross-tab time and merge retries cannot inflate totals; reflections never pass a test
-ok 8 - cross-tab time and merge retries cannot inflate totals; reflections never pass a test
-  ---
-  duration_ms: 1.2602
-  type: 'test'
-  ...
-# Subtest: reviewing a full question set never substitutes for the lesson assessment
-ok 9 - reviewing a full question set never substitutes for the lesson assessment
-  ---
-  duration_ms: 3.873
-  type: 'test'
-  ...
-# Subtest: all 42 complete independent runs can pass without missing content or impossible word pieces
-ok 10 - all 42 complete independent runs can pass without missing content or impossible word pieces
-  ---
-  duration_ms: 93.0164
-  type: 'test'
-  ...
-# Subtest: active intervals merge across clock-minute boundaries and keep non-overlapping time
-ok 11 - active intervals merge across clock-minute boundaries and keep non-overlapping time
-  ---
-  duration_ms: 1.2386
-  type: 'test'
-  ...
-# Subtest: account sessions, isolated persistent progress and validation
-ok 12 - account sessions, isolated persistent progress and validation
-  ---
-  duration_ms: 1141.8019
-  type: 'test'
-  ...
-# Subtest: all 30 lessons are complete, uniquely identified and grade their own answers
-ok 13 - all 30 lessons are complete, uniquely identified and grade their own answers
-  ---
-  duration_ms: 6.5215
-  type: 'test'
-  ...
-# Subtest: grading accepts only defined variants; letter case can be required
-ok 14 - grading accepts only defined variants; letter case can be required
-  ---
-  duration_ms: 0.1718
-  type: 'test'
-  ...
-# Subtest: viewing never completes a day; one full qualified run does; attempts deduplicate
-ok 15 - viewing never completes a day; one full qualified run does; attempts deduplicate
-  ---
-  duration_ms: 28.3601
-  type: 'test'
-  ...
-# Subtest: merge retains both histories, preserves server results and is idempotent
-ok 16 - merge retains both histories, preserves server results and is idempotent
-  ---
-  duration_ms: 0.8148
-  type: 'test'
-  ...
-# Subtest: reviews follow 1,3,7,14 days and reset for forgotten items
-ok 17 - reviews follow 1,3,7,14 days and reset for forgotten items
-  ---
-  duration_ms: 2.4265
-  type: 'test'
-  ...
-# Subtest: timezone and active time account for date boundaries and concurrent tabs
-ok 18 - timezone and active time account for date boundaries and concurrent tabs
-  ---
-  duration_ms: 1.585
-  type: 'test'
-  ...
-# Subtest: invalid events and malformed content cannot insert arbitrary question keys
-ok 19 - invalid events and malformed content cannot insert arbitrary question keys
-  ---
-  duration_ms: 0.8897
-  type: 'test'
-  ...
-1..19
-# tests 19
-# suites 0
-# pass 19
-# fail 0
-# cancelled 0
-# skipped 0
-# todo 0
-# duration_ms 1351.6183
+
+> alphabet-english-lab@2.0.0 test
+> node --test server.test.js study.test.js foundation.test.js method.test.js studio.test.js
+
+✔ 42 authored lessons follow the requested seven stages; every assessment has earlier teaching evidence (7.6711ms)
+✔ legacy and Foundation histories coexist without reusing meaning or completing each other (34.6445ms)
+✔ opening support never counts as independent evidence; full attempt differs from passing (31.6052ms)
+✔ legal contractions, smart apostrophes, case-sensitive letters and defined variants grade correctly (0.3642ms)
+✔ 10/20/30 minutes change actual question, review and vocabulary budgets (0.4819ms)
+✔ today recommends beginning, resuming, next lesson or a reasoned short review from real events (9.4281ms)
+✔ review queue is finite, prioritizes wrong/due items and handles both question and word recalls (7.6386ms)
+✔ cross-tab time and merge retries cannot inflate totals; reflections never pass a test (1.9971ms)
+✔ reviewing a full question set never substitutes for the lesson assessment (6.4771ms)
+✔ all 42 complete independent runs can pass without missing content or impossible word pieces (142.9175ms)
+✔ active intervals merge across clock-minute boundaries and keep non-overlapping time (1.9936ms)
+✔ all 42 teaching packets have authored targets, error repair, personal task and sourced probes; old content is unchanged (18.5732ms)
+✔ alphabet practice covers all 26 letters by independent hearing and matching, not a few samples (0.478ms)
+✔ historical sample passes and old reflections never become new application or long-term evidence (50.6001ms)
+✔ application needs a complete authored form; immediate repetition after support cannot substitute (30.7616ms)
+✔ same-day and three groups on one later day cannot fake spaced occasions (16.6278ms)
+✔ 1/3/7-day independent recalls qualify in sequence; future-dated records do not count early (20.9108ms)
+✔ reviews and assisted delayed answers remain practice, not verified delayed checkups (24.9221ms)
+✔ checkup duplicates deduplicate and new rubric confirmation remains self-assessment (9.6752ms)
+✔ clock answers preserve meaningful punctuation and short-form requests stay constrained (0.3882ms)
+✔ every lesson and every authored application form can complete the full spaced pathway without changing old grades (1000.0294ms)
+✔ account sessions, isolated persistent progress and validation (926.9742ms)
+✔ all seven stages have two complete authored four-step scenes with earlier teaching evidence (10.8648ms)
+✔ studio history validates IDs, separates courses and drops private drafts and claimed grades (29.3389ms)
+✔ studio keeps separate runs, retry feedback and latest self-reflection without inflating scores (2.7067ms)
+✔ review uses known same-concept variants, preserves original error and limits duplicate content (36.8779ms)
+✔ review rotates with real history and returns to the source after two independent related recalls (11.5863ms)
+✔ review preserves word favorites and legacy fallback, ignores future answers when rotating (9.7588ms)
+✔ feedback addresses bounded actual error patterns and does not diagnose valid variants (2.0751ms)
+✔ all 30 lessons are complete, uniquely identified and grade their own answers (11.2204ms)
+✔ grading accepts only defined variants; letter case can be required (0.2915ms)
+✔ viewing never completes a day; one full qualified run does; attempts deduplicate (45.8776ms)
+✔ merge retains both histories, preserves server results and is idempotent (0.7857ms)
+✔ reviews follow 1,3,7,14 days and reset for forgotten items (2.2292ms)
+✔ timezone and active time account for date boundaries and concurrent tabs (1.8815ms)
+✔ invalid events and malformed content cannot insert arbitrary question keys (1.4198ms)
+ℹ tests 36
+ℹ suites 0
+ℹ pass 36
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1412.6427

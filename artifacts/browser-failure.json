@@ -1,84 +1,16 @@
 {
-  "at": "2026-10-25T23:52:40.185Z",
+  "at": "2026-10-26T08:07:05.593Z",
   "results": [
     {
       "name": "All 42 lessons open with real teaching, models and objectives",
       "result": "PASS"
     },
     {
-      "name": "F5 restores exact lesson, question and unfinished input; duplicate click stays one event",
-      "result": "PASS"
-    },
-    {
-      "name": "Closing the tab and opening another keeps the exact draft",
-      "result": "PASS"
-    },
-    {
-      "name": "Offline F5 opens cached public course and keeps draft; no account API is cached",
-      "result": "PASS"
-    },
-    {
-      "name": "Keyboard submits correctly and 10-minute session stops after 3 actual answers",
-      "result": "PASS"
-    },
-    {
-      "name": "Wrong and supported answers give explanations; complete attempt is distinct from passing",
-      "result": "PASS"
-    },
-    {
-      "name": "New learner completes lesson 1 from start to passing summary",
-      "result": "PASS"
-    },
-    {
-      "name": "Sentence lesson 20 completes through choice, text, ordering and final assessment",
-      "result": "PASS"
-    },
-    {
-      "name": "Dialogue translations, role practice and denied microphone remain usable",
-      "result": "PASS"
-    },
-    {
-      "name": "Real MediaRecorder stop/playback/delete, track cleanup and audio overlap prevention (synthetic stream)",
-      "result": "PASS"
-    },
-    {
-      "name": "Missing voice guidance, letter-name labeling and stop on navigation (speech adapter mocked)",
-      "result": "PASS"
-    },
-    {
-      "name": "Notebook searches by word and shows real saved vocabulary",
-      "result": "PASS"
-    },
-    {
-      "name": "Export/import round trip is idempotent; invalid backup rejected",
-      "result": "PASS"
-    },
-    {
-      "name": "Exported JSON file downloads locally and imports through the file picker",
-      "result": "PASS"
-    },
-    {
-      "name": "Two real tabs preserve both writes and overlapping active intervals count once",
-      "result": "PASS"
-    },
-    {
-      "name": "Legacy course and history remain accessible and separate",
-      "result": "PASS"
-    },
-    {
-      "name": "Login preserves guest separately; explicit merge transfers both versions without duplicates",
-      "result": "PASS"
-    },
-    {
-      "name": "Offline changes remain pending and retry only reports success after server acknowledgement",
-      "result": "PASS"
-    },
-    {
-      "name": "Expired session retains pending data; switching account isolates history; re-login drains own queue",
+      "name": "All 42 personal tasks and seven capstones render; listening warm-up has playable controls",
       "result": "PASS"
     }
   ],
-  "error": "AssertionError [ERR_ASSERTION]: small touch target 360 alphabet\n+ actual - expected\n\n+ [\n+   {\n+     height: 44,\n+     text: '🔊',\n+     width: 17.859375\n+   }\n+ ]\n- []\n",
+  "error": "Error: {\"exceptionId\":1,\"text\":\"Uncaught\",\"lineNumber\":0,\"columnNumber\":129,\"scriptId\":\"205\",\"stackTrace\":{\"callFrames\":[{\"functionName\":\"\",\"scriptId\":\"205\",\"url\":\"\",\"lineNumber\":0,\"columnNumber\":135},{\"functionName\":\"\",\"scriptId\":\"205\",\"url\":\"\",\"lineNumber\":0,\"columnNumber\":191}]},\"exception\":{\"type\":\"object\",\"subtype\":\"error\",\"className\":\"Error\",\"description\":\"Error: Missing button: Bắt đầu bài học\\n    at <anonymous>:1:136\\n    at <anonymous>:1:192\",\"objectId\":\"2792601874171421927.3.2\"}}",
   "errors": [],
-  "resolvedByRun": "2026-10-26T00:05:06.802Z"
+  "resolvedByRun": "2026-10-26T08:39:15.796Z"
 }

@@ -20,12 +20,17 @@ Mở **http://localhost:3000**. macOS/Linux dùng `npm ci`, `npm start`. SQLite 
 3. Mỗi bài có phần hiểu bài, thẻ chữ/từ, nghe/nói, tự luyện, kiểm tra và tổng kết. Bảng chữ có chữ hoa–thường, nghe tên, ghép, nghe/chọn/nhập và công cụ đánh vần tên. Mẫu câu có mảnh từ bấm được hoặc nhập bằng bàn phím. Hội thoại nghe từng lượt, ẩn/hiện dịch và luyện hai vai; thay thông tin qua nhiệm vụ tự đối chiếu.
 4. Mở gợi ý/văn bản nghe ghi **có hỗ trợ**, không tính như câu đúng độc lập. Câu cá nhân/phần nói dùng checklist, không tự chấm cứng.
 5. **Đạt bài**: cùng lượt làm đủ luyện + kiểm tra; đúng độc lập ít nhất `ceil(75% câu luyện)` và `ceil(2/3 câu kiểm tra)`. Hoàn thành lượt khác đạt bài. Mở bài chỉ là đã xem. Lượt ôn không thay kiểm tra cuối bài.
-6. Ôn ưu tiên đến hạn/câu sai; hàng hữu hạn, xáo lựa chọn. Lịch nhớ tốt 1–3–7–14 ngày, chưa nhớ về 1 ngày. Sổ tay tìm từ/nghĩa, lưu từ và tự nhớ trong câu. Tự đánh giá tách khỏi điểm; tiến độ hiện số lượt và số câu khác nhau, không kết luận mạnh từ ít mẫu.
+6. **Đổi tình huống** sau kiểm tra mẫu: tự nhập với dữ kiện khác; bài 1–4 phủ từng chữ, các bài còn lại có ba nhóm hai câu để đổi khi thử lại. Cần đúng độc lập cả một nhóm cùng lượt để được ghi nhận. Không cần làm hết mọi nhóm trong một buổi. Mở hỗ trợ không tính độc lập; cùng câu vừa sai/xem hỗ trợ cần cách ít nhất 24 giờ mới tính. Hôm nay tiếp tục phần đang dở, đề xuất vận dụng hoặc nhớ lại khi đến hạn.
+7. **Nhớ lại sau nghỉ**: ba mốc sớm nhất +1/+3/+7 ngày kể từ vận dụng đạt, mỗi lần cách lần trước ít nhất 24 giờ. Mỗi mốc hai câu, chỉ phản ánh mẫu đó; làm ba nhóm cùng ngày không thành ba buổi nhớ lại. Lịch dùng thời gian thực; trở lại muộn ghi số ngày thật. Không tự chuyển điểm cũ thành bằng chứng mới.
+8. Ôn thường ưu tiên đến hạn/câu sai; hàng hữu hạn, xáo lựa chọn. Lịch tự đánh giá nhớ tốt 1–3–7–14 ngày, chưa nhớ về 1 ngày, tách khỏi ba mốc kiểm tra nói trên. Sổ tay tìm từ/nghĩa, lưu từ và tự nhớ trong câu. Nhiệm vụ cá nhân có mẫu/tiêu chí; cuối mỗi chặng có nhiệm vụ tổng hợp. Tự đối chiếu không thay giáo viên chấm, tiến độ không kết luận mạnh từ ít mẫu.
+9. **Vận dụng** mở xưởng gồm hai tình huống mỗi chặng, bốn bước/tình huống. Tự nói/viết và ghi câu/điều còn khó trước khi mở mẫu; đối chiếu tiêu chí, lưu “đã đối chiếu” hoặc “còn cần luyện”. F5 giữ bước, ghi chú, trạng thái mẫu. Có đổi dữ kiện và tạo lượt mới giữ lịch sử; kết quả tự đối chiếu không tăng điểm bài. 10/20/30 phút giới hạn 3/6/9 bước/câu trong buổi.
+10. **Ôn có biến thể** dùng lịch sử thật để thử cách dùng khác của cùng kiến thức, ưu tiên tránh câu vừa gặp. Đúng biến thể không tự xóa lỗi câu gốc; sau hai câu ôn liên quan đúng độc lập, quay về câu gốc để sửa. Nếu chưa có biến thể phù hợp, dùng câu gốc. Hàng ôn và vị trí được giữ qua F5; có nút tạo buổi mới sau khi kết thúc.
 
 ## Dữ liệu và khóa cũ
 
 - Khách lưu tại trình duyệt. **F5 và đóng/mở tab giữ bước, câu nhập dở và hỗ trợ đã mở**. Xóa dữ liệu trình duyệt có thể mất khách nếu chưa sao lưu.
 - Tài khoản lưu sự kiện vào SQLite/PostgreSQL. Máy chủ tự chấm từ đáp án, UUID chống cộng trùng. Bản nháp câu nhập/checklist lưu riêng trên thiết bị; xuất bản sao để chuyển bản nháp sang máy khác.
+- Xưởng vận dụng chỉ đồng bộ mã bước/trạng thái tự đối chiếu khi đăng nhập. Lời đáp/ghi chú cá nhân ở thiết bị và bản sao bạn chủ động xuất; không gửi vào API. Ứng dụng không tự chấm câu mở hoặc ghi điểm phát âm.
 - Đăng nhập không ghi đè khách; Hôm nay có **Hợp nhất vào tài khoản**. Chỉ bỏ bản khách khi đã xác nhận lưu thành công và không có thay đổi khách mới chưa hợp nhất. Mất mạng/hết phiên giữ hàng chờ, không báo đã đồng bộ. Đổi tài khoản dùng bộ nhớ riêng.
 - **Tài khoản → Bản sao tiến độ** xuất/nhập JSON cho cả hai khóa và bản nháp; nhập hợp nhất theo mã, không xóa lịch sử hiện có. Chỉ nhập bản sao tin cậy. Công cụ bảng chữ cũ có bộ tiến độ riêng, chưa nằm trong định dạng xuất sự kiện khóa học này.
 - **Tài khoản → Xem khóa cũ và lịch sử** giữ khóa 30 bài/ID `dN-*`. Khóa mới dùng `foundation-v2`, ID `f2-lN-*`; không tái diễn giải điểm cũ thành điểm khóa mới.
@@ -51,18 +56,24 @@ Browser test dùng Chrome/Edge headless, database/profile riêng; có thể đ�
 
 Đọc [CONTENT-AUDIT.md](CONTENT-AUDIT.md) để xem rà soát từng bài/phần cần giáo viên; [CONTENT-MAP.md](CONTENT-MAP.md) để truy nguyên tất cả câu kiểm tra. [CONTENT-REPORT.md](CONTENT-REPORT.md) và [LEGACY-README.md](LEGACY-README.md) là tài liệu lưu trữ khóa cũ.
 
+Bản nâng chất lượng giảng dạy **method1** bổ sung cả 42 bài, giữ điểm và ID cũ. [METHOD-CONTENT-MAP.md](METHOD-CONTENT-MAP.md) truy nguyên mọi câu mới; [COURSE-METHOD-REPORT.md](COURSE-METHOD-REPORT.md) giải thích cách dạy/đánh giá và giới hạn. [TEACHER-PILOT.md](TEACHER-PILOT.md) có kịch bản, nhiệm vụ và phiếu ghi để giáo viên/người học thử qua nhiều buổi thật; chưa có thử nghiệm bên ngoài.
+
+Vòng tiếp **studio1** có [báo cáo xưởng và ôn biến thể](BIG-UPDATE-REPORT.md), [nội dung từng bước](STUDIO-CONTENT-MAP.md) và [phạm vi/nghiệm thu](BIG-UPDATE-PLAN.md).
+
 ## Tệp chính và vận hành
 
 | Tệp | Trách nhiệm |
 |---|---|
 | `public/foundation.js` | 42 bài, mẫu, concept, đáp án hợp lệ và validator |
+| `public/course-method.js` | 42 bộ hướng dẫn bổ sung, sửa lỗi, nhiệm vụ, biến thể vận dụng và bằng chứng nhớ lại |
+| `public/scenarios.js`, `public/review-coach.js` | Catalog 14 tình huống/56 bước; chọn biến thể ôn và phản hồi lỗi có giới hạn |
 | `public/study-engine.js` | Chấm, phiên bản, tiến độ, lịch ôn, khối lượng buổi và thời gian |
 | `public/foundation-ui.js` | Học, lưu khách/tài khoản, bản nháp, sổ tay, xuất/nhập |
 | `public/audio.js`, `public/recorder.js` | Audio chung và ghi âm cục bộ |
 | `public/index.html`, `public/course.css`, `public/sw.js` | Giao diện, tokens, cache công khai |
 | `public/app.js`, `public/curriculum.js` | Tài khoản/admin/công cụ cũ và khóa 30 bài |
 | `server.js`, `database.js` | API, phân quyền, session, SQLite/PostgreSQL |
-| `foundation.test.js`, `study.test.js`, `server.test.js`, `browser-foundation.cjs` | Engine/nội dung/API/migration/E2E |
+| `foundation.test.js`, `method.test.js`, `studio.test.js`, `study.test.js`, `server.test.js`, `browser-foundation.cjs` | Engine/nội dung/API/migration/E2E |
 
 [OPERATIONS.md](OPERATIONS.md) có biến môi trường, sao lưu, migration, cập nhật Render và quay lại an toàn. `COURSE_EDITION=legacy-v1` mở chế độ tương thích khóa cũ mà vẫn giữ engine hiểu dữ liệu mới. Mặc định không cần biến này. Không tự push hoặc deploy trong phiên nâng cấp.
 
